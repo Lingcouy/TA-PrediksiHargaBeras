@@ -14,7 +14,7 @@
     <input type="checkbox" id="flip">
     <div class="cover">
       <div class="front">
-        <img src="{{asset('image/beras.jpeg')}}" alt="">
+        <img src="{{asset('image/rice-bg.png')}}" alt="">
         <div class="text">
           <span class="text-1">Every new friend is a <br> new adventure</span>
           <span class="text-2">Let's get connected</span>
@@ -42,7 +42,6 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" placeholder="Enter your password" required>
               </div>
-              <div class="text"><a href="#">Forgot password?</a></div>
               <div class="button input-box">
                 <input type="submit" value="Sumbit">
               </div>
