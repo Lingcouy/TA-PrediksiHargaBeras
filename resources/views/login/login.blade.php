@@ -16,8 +16,8 @@
       <div class="front">
         <img src="{{asset('image/rice-bg.png')}}" alt="">
         <div class="text">
-          <span class="text-1">Every new friend is a <br> new adventure</span>
-          <span class="text-2">Let's get connected</span>
+          <span class="text-1">Prediksi Harga Beras<br> Di Kota Manado</span>
+          <span class="text-2">Sulawesi Utara</span>
         </div>
       </div>
       <div class="back">
