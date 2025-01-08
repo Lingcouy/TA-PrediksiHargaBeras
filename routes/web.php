@@ -15,4 +15,4 @@ Route::get('/dashboard', function () {
 
 Route::get('/login', [LoginController::class, 'login']);
 
-Route::resource('/dataPrediksi', DataPrediksiController::class);
+Route::resource('/keloladataprediksi', DataPrediksiController::class);

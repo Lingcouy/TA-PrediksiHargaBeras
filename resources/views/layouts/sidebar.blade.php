@@ -9,7 +9,7 @@
             class="fas fa-chart-line me-2"></i>Prediksi Harga</a>
         <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('data-prediksi') ? 'active' : '' }}" ><i
             class="fas fa-table me-2"></i>Data Prediksi</a>
-        <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('kelola-data') ? 'active' : '' }}"><i
+        <a href="keloladataprediksi" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('keloladataprediksi') ? 'active' : '' }}"><i
             class="fas fa-user-edit  me-2"></i>Kelola Data Prediksi</a>
         <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
             class="fas fa-power-off me-2"></i>Logout</a>

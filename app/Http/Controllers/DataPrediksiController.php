@@ -13,6 +13,7 @@ class DataPrediksiController extends Controller
     public function index()
     {
         //
+        return view("dataPrediksi.dataPrediksi");
     }
 
     /**
@@ -21,6 +22,7 @@ class DataPrediksiController extends Controller
     public function create()
     {
         //
+
     }
 
     /**
@@ -29,6 +31,7 @@ class DataPrediksiController extends Controller
     public function store(Request $request)
     {
         //
+        
     }
 
     /**
