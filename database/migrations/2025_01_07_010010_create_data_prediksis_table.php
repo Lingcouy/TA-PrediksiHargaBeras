@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('data_prediksis', function (Blueprint $table) {
             $table->id('idDataPrediksi');
-            $table->date('periode');
+            $table->string('periode', 7)->comment('Periode dalam format YYYY-MM');
             $table->decimal('hargaBeras', 12, 4);
             $table->decimal('produksiPadi', 12, 4);
             $table->decimal('produksiBeras', 12, 4);

@@ -22,6 +22,7 @@ class DataPrediksiController extends Controller
     public function create()
     {
         //
+        return view("dataPrediksi.aksi.create");
 
     }
 
