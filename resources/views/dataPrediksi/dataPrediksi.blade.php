@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('container')
-    <!-- Page Content -->
+    <!-- Page Content -->   
     {{-- @include('sweetalert::alert') --}}
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
@@ -59,7 +59,7 @@
                 {{-- @endif --}}
                 <div class="col">
 
-                    <form action="/bibitdummy" method="GET">
+                    <form action="/keloladataprediksi" method="GET">
                         @csrf
                         <div class="row g-2">
                             <label for="search" class="" style="display: none;">\</label>
@@ -82,7 +82,7 @@
                             </div>
                     </form>
                     <div class="col-auto">
-                        <a href="/bibitdummy/create" class="btn btn-success mb-2">Tambah Data <i
+                        <a href="/keloladataprediksi/create" class="btn btn-success mb-2">Tambah Data <i
                                 class="fas fa-plus"></i></a>
                     </div>
                 </div>
@@ -131,6 +131,24 @@
                                     </td>
                                     <td>
                                        gfhfghfghf
+                                    </td>
+                                    <td>
+                                       fghfghfg
+                                    </td>
+                                    <td>
+                                       fghfghfg
+                                    </td>
+                                    <td>
+                                       fghfghfg
+                                    </td>
+                                    <td>
+                                       fghfghfg
+                                    </td>
+                                    <td>
+                                       fghfghfg
+                                    </td>
+                                    <td>
+                                       fghfghfg
                                     </td>
                                     <td>
                                        fghfghfg
