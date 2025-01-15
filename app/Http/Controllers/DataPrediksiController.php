@@ -10,11 +10,26 @@ class DataPrediksiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $dataPrediksis = DataPrediksi::all();
-        return view("dataPrediksi.dataPrediksi");
+        // Ambil input bulan dan tahun dari request
+        $bulan = $request->input('bulan');
+        $tahun = $request->input('tahun');
+
+        // Filter data berdasarkan bulan dan/atau tahun
+        $dataPrediksis = DataPrediksi::when($tahun, function ($query, $tahun) {
+                return $query->where('periode', 'like', $tahun . '-%');
+            })
+            ->when($bulan, function ($query, $bulan) {
+                return $query->where('periode', 'like', '%-' . $bulan);
+            })
+            ->paginate(10); // Atur jumlah item per halaman
+
+        return view('dataPrediksi.dataPrediksi', [
+            'dataPrediksis' => $dataPrediksis,
+            'bulan' => $bulan, // Kirim data bulan ke view
+            'tahun' => $tahun  // Kirim data tahun ke view
+        ]);
     }
 
     /**
@@ -100,8 +115,13 @@ class DataPrediksiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DataPrediksi $dataPrediksi)
+    public function destroy(DataPrediksi $dataPrediksi, $idDataPrediksi)
     {
-        //
+        $dataPrediksi = DataPrediksi::findOrfail($idDataPrediksi);
+
+        $dataPrediksi->delete();
+        return redirect('/keloladataprediksi')->with('success', 'Data prediksi berhasil dihapus.');
     }
+
+    
 }

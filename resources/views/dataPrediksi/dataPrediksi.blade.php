@@ -61,30 +61,43 @@
 
                     <form action="/keloladataprediksi" method="GET">
                         @csrf
-                        <div class="row g-2">
-                            <label for="search" class="" style="display: none;">\</label>
+                        <div class="row g-2 align-items-end">
+                            <!-- Input Tahun -->
                             <div class="col-md-5">
-                                <input class="form-control form-control-sl mb-0" type="text" placeholder="Cari...."
-                                    style="max-width: 100%;" value="" name="search" autofocus>
+                                <input class="form-control" type="text" placeholder="Masukkan Tahun" 
+                                       name="tahun" value="{{ request('tahun') }}" autofocus>
                             </div>
+                            
+                            <!-- Dropdown Bulan -->
                             <div class="col-md-5">
-                                <select class="form-select form-select-sl mb-0" aria-label="Default select example"
-                                    style="max-width: 100%" name="persemaian" id="persemaianSelect">
-                                    {{-- <option value="{{ Auth::user()->persemaian }}"
-                                        {{ request('persemaian') == Auth::user()->persemaian ? 'selected' : '' }}>
-                                        {{ Auth::user()->persemaian }}
-                                    </option> --}}
+                                <select class="form-select" name="bulan" id="bulan">
+                                    <option value="">Pilih Bulan</option>
+                                    @for ($i = 1; $i <= 12; $i++)
+                                        <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" 
+                                                {{ request('bulan') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                            {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                                        </option>
+                                    @endfor
                                 </select>
                             </div>
+                            
+                            <!-- Tombol Cari -->
                             <div class="col-auto">
-                                <button type="submit" class="btn btn-success mb-2" id="cariButton">Cari
+                                <button type="submit" class="btn btn-success" id="cariButton">Cari
                                     Data <i class="fas fa-search"></i></button>
                             </div>
+                        </div>
                     </form>
-                    <div class="col-auto">
-                        <a href="/keloladataprediksi/create" class="btn btn-success mb-2">Tambah Data <i
-                                class="fas fa-plus"></i></a>
+                    
+                    <div class="row g-2 mt-2 mb-3">
+                        <!-- Tombol Tambah Data -->
+                        <div class="col-auto">
+                            <a href="/keloladataprediksi/create" class="btn btn-success">Tambah Data <i
+                                    class="fas fa-plus"></i></a>
+                        </div>
                     </div>
+                    
+                    
                 </div>
                 {{-- @if (session('info'))
                     <div class="alert alert-danger" role="alert">
@@ -96,7 +109,8 @@
                     <table id="myTable" class="table bg-white rounded shadow-sm table-striped table-hover">
                         <thead class="table-success">
                             <tr>
-                                <th scope="col" width="50">No</th>
+                                <th scope="col" width="50">No</th>                                
+                                <th scope="col">Periode</th>
                                 <th scope="col">Harga Beras</th>
                                 <th scope="col">Produksi Padi</th>
                                 <th scope="col">Produksi Beras</th>
@@ -104,73 +118,66 @@
                                 <th scope="col">IHK</th>
                                 <th scope="col">Curah Hujan</th>
                                 <th scope="col">Inflasi</th>
-                                <th scope="col">Tipe Bibit</th>
-                                <th scope="col">Jumlah Bibit</th>
-
-                                {{-- <th scope="col">Penambahan Terakhir</th>
-                                            <th scope="col">Pengurangan Terakhir</th> --}}
                                 <th scope="col">Aksi</th>
 
                             </tr>
                         </thead>
                         <tbody>
-
                             @php
-                                // $nomor = 1 + ($bibits->currentPage() - 1) * $bibits->perPage();
+                                $nomor = 1 + ($dataPrediksis->currentPage() - 1) * $dataPrediksis->perPage();
                             @endphp
-                            {{-- @foreach ($bibits as $bibit) --}}
+                            @foreach ($dataPrediksis as $dataPrediksi)
                                 <tr>
                                     <td>
                                         {{-- {{ $loop->iteration }} --}}
-                                        {{-- {{ $nomor++ }} --}}
-                                        fdgdg
+                                        {{ $nomor++ }}
+                                        
                                     </td>
                                     <td>
-                                        {{-- {{ $bibit->jenisBibit }} --}}
-                                        fhfghfgh
+                                        {{ $dataPrediksi->periode }}                 
                                     </td>
                                     <td>
-                                       gfhfghfghf
+                                        {{ $dataPrediksi->hargaBeras }}                 
                                     </td>
                                     <td>
-                                       fghfghfg
+                                        {{ $dataPrediksi->produksiPadi }}
                                     </td>
                                     <td>
-                                       fghfghfg
+                                        {{ $dataPrediksi->produksiBeras }}
                                     </td>
                                     <td>
-                                       fghfghfg
+                                        {{ $dataPrediksi->luasPanenPadi }}
                                     </td>
                                     <td>
-                                       fghfghfg
+                                        {{ $dataPrediksi->indeksHargaKonsumen }}
                                     </td>
                                     <td>
-                                       fghfghfg
+                                        {{ $dataPrediksi->inflasi }}
                                     </td>
                                     <td>
-                                       fghfghfg
-                                    </td>
-                                    <td>
-                                       fghfghfg
+                                        {{ $dataPrediksi->curahHujan }}
                                     </td>
                                     <th>
 
                                         <a href="" type="button"
                                             class="badge bg-primary"><i class="fas fa-edit"></i></a>
-                                        <form action="" method="post"
-                                            type=button class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="badge bg-danger border-0 confirm-deleted"><i
-                                                    class="fas fa-trash-alt"></i></button>
-                                        </form>
+                                            <form action="/keloladataprediksi/{{ $dataPrediksi->idDataPrediksi }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="badge bg-danger border-0 confirm-deleted">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            
+    
 
-                                    </th>
+                                    </th>   
                                 </tr>
-                            {{-- @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
-                    {{-- {{ $bibits->links() }} --}}
+                    {{ $dataPrediksis->links() }}
                     {{-- {!! $bibits->appends(Request::except('page'))->render() !!} --}}
                 </div>
             </div>
