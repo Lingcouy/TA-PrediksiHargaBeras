@@ -87,24 +87,14 @@
                                     Data <i class="fas fa-search"></i></button>
                             </div>
                         </div>
-                    </form>
-                    
-                    <div class="row g-2 mt-2 mb-3">
-                        <!-- Tombol Tambah Data -->
-                        <div class="col-auto">
-                            <a href="/keloladataprediksi/create" class="btn btn-success">Tambah Data <i
-                                    class="fas fa-plus"></i></a>
-                        </div>
-                    </div>
-                    
-                    
+                    </form>                    
                 </div>
                 {{-- @if (session('info'))
                     <div class="alert alert-danger" role="alert">
                         {{ session('info') }}
                     </div>
                 @endif --}}
-                <div class="table-responsive">
+                <div class="table-responsive mt-3">
 
                     <table id="myTable" class="table bg-white rounded shadow-sm table-striped table-hover">
                         <thead class="table-success">
@@ -118,7 +108,6 @@
                                 <th scope="col">IHK</th>
                                 <th scope="col">Curah Hujan</th>
                                 <th scope="col">Inflasi</th>
-                                <th scope="col">Aksi</th>
 
                             </tr>
                         </thead>
@@ -157,23 +146,6 @@
                                     <td>
                                         {{ $dataPrediksi->curahHujan }}
                                     </td>
-                                    <th>
-
-                                        <a href="{{ route('keloladataprediksi.edit', $dataPrediksi->idDataPrediksi) }}" type="button"
-                                            class="badge bg-primary"><i class="fas fa-edit"></i></a>
-                                            <form action="{{ route('keloladataprediksi.destroy', $dataPrediksi->idDataPrediksi) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="badge bg-danger border-0 confirm-deleted">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                            
-                                            
-                                            
-    
-
-                                    </th>   
                                 </tr>
                             @endforeach
                         </tbody>

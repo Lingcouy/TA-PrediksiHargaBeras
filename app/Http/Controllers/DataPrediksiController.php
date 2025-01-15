@@ -99,17 +99,62 @@ class DataPrediksiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DataPrediksi $dataPrediksi)
+    public function edit(DataPrediksi $dataPrediksi, $idDataPrediksi)
     {
-        //
+        try {
+            // Temukan data berdasarkan ID
+            $dataPrediksi = DataPrediksi::findOrFail($idDataPrediksi);
+    
+            // Kirim data ke view edit
+            return view('dataPrediksi.aksi.edit', compact('dataPrediksi'));
+        } catch (\Exception $e) {
+            // Redirect dengan pesan error jika data tidak ditemukan
+            return redirect('/keloladataprediksi')->with('error', 'Data tidak ditemukan: ' . $e->getMessage());
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DataPrediksi $dataPrediksi)
+    public function update(Request $request, DataPrediksi $dataPrediksi, $idDataPrediksi)
     {
-        //
+         // Validasi input
+        $validatedData = $request->validate([
+            'bulan' => ['required', 'regex:/^(0[1-9]|1[0-2])$/'], // Format bulan MM
+            'tahun' => ['required', 'digits:4', 'integer', 'min:2000', 'max:' . date('Y')], // Format tahun YYYY
+            'hargaBeras' => 'required|numeric|min:0',
+            'produksiPadi' => 'required|numeric|min:0',
+            'produksiBeras' => 'required|numeric|min:0',
+            'luasPanenPadi' => 'required|numeric|min:0',
+            'indeksHargaKonsumen' => 'required|numeric|min:0',
+            'inflasi' => 'required|numeric|between:-100,100',
+            'curahHujan' => 'required|numeric|min:0',
+        ], [
+            // Pesan kesalahan khusus
+            'bulan.required' => 'Bulan wajib diisi.',
+            'bulan.regex' => 'Format bulan harus MM (01-12).',
+            'tahun.required' => 'Tahun wajib diisi.',
+            'tahun.digits' => 'Tahun harus terdiri dari 4 digit.',
+            'tahun.min' => 'Tahun minimal adalah 2000.',
+            'tahun.max' => 'Tahun tidak boleh melebihi tahun saat ini.',
+        ]);
+
+        try {
+            // Gabungkan bulan dan tahun menjadi periode
+            $validatedData['periode'] = $validatedData['tahun'] . '-' . $validatedData['bulan'];
+
+            // Temukan data berdasarkan ID
+            $dataPrediksi = DataPrediksi::findOrFail($idDataPrediksi);
+
+            // Perbarui data
+            $dataPrediksi->update($validatedData);
+
+            // Redirect dengan pesan sukses
+            return redirect('/keloladataprediksi')->with('success', 'Data prediksi berhasil diperbarui.');
+        } catch (\Exception $e) {
+            // Redirect dengan pesan error
+            return redirect()->back()->withErrors(['error' => 'Gagal memperbarui data: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -118,7 +163,7 @@ class DataPrediksiController extends Controller
     public function destroy(DataPrediksi $dataPrediksi, $idDataPrediksi)
     {
         $dataPrediksi = DataPrediksi::findOrfail($idDataPrediksi);
-
+                                                        
         $dataPrediksi->delete();
         return redirect('/keloladataprediksi')->with('success', 'Data prediksi berhasil dihapus.');
     }

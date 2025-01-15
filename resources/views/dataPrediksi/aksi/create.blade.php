@@ -43,18 +43,18 @@
 
         <div class="container-fluid px-4">
             <div class="row my-3">
-                <h3 class="fs-3 mb-3 text-center">Tambah Data Bibit</h3>
+                <h3 class="fs-3 mb-3 text-center">Tambah Data Prediksi</h3>
                 <form method="post" action="/keloladataprediksi">
                     <a href="/keloladataprediksi" class="btn btn-outline-success btn-sm mb-3"><i class="fas fa-arrow-left"></i>
                         Kembali</a>
 
                     @csrf
                     <div class="container-fluid border border-1 border-success rounded mx-auto">
-                        <div class="row mb-3">
+                        <div class="row mb-3 mt-3">
                             <label for="periode" class="col-sm-2 col-form-label">Periode</label>
                             <div class="col-sm-5">
                                 <select class="form-select @error('bulan') is-invalid @enderror" name="bulan" id="bulanSelect" required>
-                                    <option value="" disabled selected>Pilih Bulan</option>
+                                    <option value="" disabled {{ old('bulan') ? '' : 'selected' }}>Pilih Bulan</option>
                                     <option value="01">Januari</option>
                                     <option value="02">Februari</option>
                                     <option value="03">Maret</option>
@@ -74,7 +74,7 @@
                             </div>
                             <div class="col-sm-5">
                                 <select class="form-select @error('tahun') is-invalid @enderror" name="tahun" id="tahunSelect" required>
-                                    <option value="" disabled selected>Pilih Tahun</option>
+                                    <option value="" disabled {{ old('tahun') ? '' : 'selected' }}>Pilih Tahun</option>
                                     @for ($year = 2000; $year <= date('Y'); $year++)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endfor

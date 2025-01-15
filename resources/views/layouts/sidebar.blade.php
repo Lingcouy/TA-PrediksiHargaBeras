@@ -7,7 +7,7 @@
             class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
         <a href="prediksi" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('prediksi') ? 'active' : '' }}"><i 
             class="fas fa-chart-line me-2"></i>Prediksi Harga</a>
-        <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('data-prediksi') ? 'active' : '' }}" ><i
+        <a href="{{ route('data-prediksi') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('data-prediksi') ? 'active' : '' }}" ><i
             class="fas fa-table me-2"></i>Data Prediksi</a>
         <a href="{{ route('keloladataprediksi.index') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('keloladataprediksi') ? 'active' : '' }}"><i
             class="fas fa-user-edit  me-2"></i>Kelola Data Prediksi</a>
@@ -15,4 +15,4 @@
             class="fas fa-power-off me-2"></i>Logout</a>
     </div>
 </div>
-<!-- /#sidebar-wrapper -->
+<!-- /#sidebar-wrapper -->  
