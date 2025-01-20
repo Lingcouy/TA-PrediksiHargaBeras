@@ -27,14 +27,24 @@
 
         <div class="container-fluid px-4">
             <div class="row my-3">
-                <h3 class="fs-3 mb-3">Prediksi Harga</h3>
+                <h3 class="fs-3 mb-3">Pilih Periode Prediksi Harga</h3>
                 <form method="GET" action="/prediksi-harga">
                     <div class="row g-3 align-items-center">
                         <div class="col-md-4">
-                            <label for="bulan" class="form-label">Bulan</label>
-                            <select class="form-select" name="bulan" id="bulan">
+                            <label for="bulan_mulai" class="form-label">Bulan Mulai</label>
+                            <select class="form-select" name="bulan_mulai" id="bulan_mulai">
                                 @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan_mulai') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                        {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="bulan_akhir" class="form-label">Bulan Akhir</label>
+                            <select class="form-select" name="bulan_akhir" id="bulan_akhir">
+                                @for ($i = 1; $i <= 12; $i++)
+                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan_akhir') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                         {{ DateTime::createFromFormat('!m', $i)->format('F') }}
                                     </option>
                                 @endfor
@@ -48,14 +58,16 @@
                                 @endfor
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary mt-4">Prediksi Harga</button>
-                            <button type="submit" class="btn btn-primary mt-4">Tampilkan Perhitungan</button>
+                    </div>
+                    <div class="row mt-4 justify-content-center">
+                        <div class="col-md-3 d-flex justify-content-around">
+                            <button type="submit" class="btn btn-success">Prediksi Harga</button>
+                            <button type="submit" class="btn btn-success">Tampilkan Perhitungan</button>
                         </div>
                     </div>
                 </form>
 
-                <div class="mt-5 ">
+                <div class="mt-5">
                     <h4>Grafik Prediksi Harga Beras</h4>
                     <div class="chart-container" style="position: relative; height: 65vh; width:100%">
                         <canvas id="prediksiChart"></canvas>
@@ -71,18 +83,18 @@
         const prediksiChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], // Update labels dynamically based on range
                 datasets: [
                     {
                         label: 'Harga Aktual',
-                        data: [12000, 12500, 13000, 12800, 13500, 14000, 14500, 15000, 15500, 16000, 16500, 17000],
+                        data: [12000, 12500, 13000, 12800, 13500, 14000, 14500, 15000, 15500, 16000, 16500, 17000], // Replace with actual data
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
                     },
                     {
                         label: 'Harga Prediksi',
-                        data: [11500, 12000, 12500, 12300, 13000, 13500, 13800, 14300, 14800, 15200, 15800, 16200],
+                        data: [11500, 12000, 12500, 12300, 13000, 13500, 13800, 14300, 14800, 15200, 15800, 16200], // Replace with predicted data
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
                         fill: false
