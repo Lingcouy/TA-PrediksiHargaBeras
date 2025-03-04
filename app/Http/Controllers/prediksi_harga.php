@@ -140,12 +140,23 @@ class prediksi_harga extends Controller
             }, $Y_test, $predictedPrices)) / count($Y_test) * 100;
 
 
-        // Tampilkan hasil
+        // Ambil harga aktual yang relevan sesuai bulan
+        $actualPrices = [];
+        foreach ($dataPrediksis as $data) {
+            if (is_numeric($data->hargaBeras)) {
+                $actualPrices[] = $data->hargaBeras;
+            }
+        }
+
+
+        // Tampilkan Hasil
         return view('prediksi_harga.prediksi', [
             'regressionEquation' => $regressionEquation,
             'predictedPrices' => $predictedPrices,
             'mape' => (100 - $mape),
+            'actualPrices' => $actualPrices,
         ]);
+
     }
 
     // Metode untuk mengalikan dua matriks

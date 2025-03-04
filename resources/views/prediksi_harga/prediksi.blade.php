@@ -76,9 +76,24 @@
                         <p><strong>Harga Prediksi:</strong></p>
                         <ul>
                             @foreach($predictedPrices as $index => $predictedPrice)
-                                <li>Bulan {{ $index + 1 }}: Rp {{ number_format($predictedPrice[0], 2, ',', '.') }}</li>  <!-- Menambahkan [0] untuk mengakses angka -->
+                                @php
+                                    $actualPrice = isset($actualPrices[$index]) ? $actualPrices[$index] : null;
+                                @endphp
+                                <li>
+                                    Bulan {{ $index + 1 }}:
+                                    <span><strong>Harga Aktual:</strong>
+            @if($actualPrice !== null)
+                                            Rp {{ number_format($actualPrice, 2, ',', '.') }}
+                                        @else
+                                            Data tidak tersedia
+                                        @endif
+        </span> |
+                                    <span><strong>Harga Prediksi:</strong> Rp {{ number_format($predictedPrice[0], 2, ',', '.') }}</span>
+                                </li>
                             @endforeach
+
                         </ul>
+
 
                         <p><strong>MAPE:</strong> {{ number_format($mape, 2) }}%</p>
                     </div>
