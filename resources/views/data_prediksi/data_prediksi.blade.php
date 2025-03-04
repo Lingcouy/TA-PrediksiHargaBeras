@@ -1,6 +1,7 @@
 @extends('layouts.main')
+@section('title', 'Data Prediksi')
 @section('container')
-    <!-- Page Content -->   
+    <!-- Page Content -->
     {{-- @include('sweetalert::alert') --}}
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
@@ -64,30 +65,30 @@
                         <div class="row g-2 align-items-end">
                             <!-- Input Tahun -->
                             <div class="col-md-5">
-                                <input class="form-control" type="text" placeholder="Masukkan Tahun" 
+                                <input class="form-control" type="text" placeholder="Masukkan Tahun"
                                        name="tahun" value="{{ request('tahun') }}" autofocus>
                             </div>
-                            
+
                             <!-- Dropdown Bulan -->
                             <div class="col-md-5">
                                 <select class="form-select" name="bulan" id="bulan">
                                     <option value="">Pilih Bulan</option>
                                     @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" 
+                                        <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}"
                                                 {{ request('bulan') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                             {{ DateTime::createFromFormat('!m', $i)->format('F') }}
                                         </option>
                                     @endfor
                                 </select>
                             </div>
-                            
+
                             <!-- Tombol Cari -->
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-success" id="cariButton">Cari
                                     Data <i class="fas fa-search"></i></button>
                             </div>
                         </div>
-                    </form>                    
+                    </form>
                 </div>
                 {{-- @if (session('info'))
                     <div class="alert alert-danger" role="alert">
@@ -99,15 +100,16 @@
                     <table id="myTable" class="table bg-white rounded shadow-sm table-striped table-hover">
                         <thead class="table-success">
                             <tr>
-                                <th scope="col" width="50">No</th>                                
+                                <th scope="col" width="50">No</th>
                                 <th scope="col">Periode</th>
                                 <th scope="col">Harga Beras</th>
                                 <th scope="col">Produksi Padi</th>
                                 <th scope="col">Produksi Beras</th>
                                 <th scope="col">Luas Panen</th>
                                 <th scope="col">IHK</th>
-                                <th scope="col">Curah Hujan</th>
                                 <th scope="col">Inflasi</th>
+                                <th scope="col">Curah Hujan</th>
+
 
                             </tr>
                         </thead>
@@ -120,13 +122,13 @@
                                     <td>
                                         {{-- {{ $loop->iteration }} --}}
                                         {{ $nomor++ }}
-                                        
+
                                     </td>
                                     <td>
-                                        {{ $dataPrediksi->periode }}                 
+                                        {{ $dataPrediksi->periode }}
                                     </td>
                                     <td>
-                                        {{ $dataPrediksi->hargaBeras }}                 
+                                        {{ $dataPrediksi->hargaBeras }}
                                     </td>
                                     <td>
                                         {{ $dataPrediksi->produksiPadi }}
@@ -144,8 +146,9 @@
                                         {{ $dataPrediksi->inflasi }}
                                     </td>
                                     <td>
-                                        {{ $dataPrediksi->curahHujan }}
+                                        {{ $dataPrediksi->curahHujan}}
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

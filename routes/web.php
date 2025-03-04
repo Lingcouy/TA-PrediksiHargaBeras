@@ -21,3 +21,6 @@ Route::resource('/keloladataprediksi', DataPrediksiController::class);
 Route::get('/data-prediksi', [data_prediksi::class, 'index'])->name('data-prediksi');
 
 Route::get('/prediksi-harga', [prediksi_harga::class, 'prediksi'])->name('prediksi-harga');
+
+// Add a new route for the analyze method
+Route::get('/analyze-prediksi', [prediksi_harga::class, 'analyze'])->name('analyze-prediksi');

@@ -1,4 +1,5 @@
 @extends('layouts.main')
+@section('title', 'Prediksi Harga')
 @section('container')
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
@@ -7,14 +8,14 @@
                 <h2 class="fs-2 m-0">Prediksi Harga</h2>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                           data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-2"></i> Admin
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -67,6 +68,23 @@
                     </div>
                 </form>
 
+                <!-- Results from Analysis -->
+                @if(isset($regressionEquation) && isset($predictedPrices))
+                    <div class="mt-5">
+                        <h4>Hasil Perhitungan Regresi Linier</h4>
+                        <p><strong>Persamaan Regresi:</strong> {{ $regressionEquation }}</p>
+                        <p><strong>Harga Prediksi:</strong></p>
+                        <ul>
+                            @foreach($predictedPrices as $index => $predictedPrice)
+                                <li>Bulan {{ $index + 1 }}: Rp {{ number_format($predictedPrice[0], 2, ',', '.') }}</li>  <!-- Menambahkan [0] untuk mengakses angka -->
+                            @endforeach
+                        </ul>
+
+                        <p><strong>MAPE:</strong> {{ number_format($mape, 2) }}%</p>
+                    </div>
+                @endif
+
+                <!-- Grafik Prediksi Harga Beras -->
                 <div class="mt-5">
                     <h4>Grafik Prediksi Harga Beras</h4>
                     <div class="chart-container" style="position: relative; height: 65vh; width:100%">

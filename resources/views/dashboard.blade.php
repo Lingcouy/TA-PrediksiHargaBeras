@@ -1,7 +1,7 @@
 @extends('layouts.main')
-
+@section('title', 'Dashboard')
 @section('container')
-       
+
 <!-- Page Content -->
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
@@ -74,7 +74,7 @@
                         </div>
                     </div>
 
-                    
+
 
                 <div class="row my-5">
                     <h3 class="fs-4 mb-3">Recent Orders</h3>

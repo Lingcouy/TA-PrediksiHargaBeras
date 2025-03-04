@@ -23,8 +23,11 @@
       <div class="back">
         <!--<img class="backImg" src="images/backImg.jpg" alt="">-->
         <div class="text">
-          <span class="text-1">Complete miles of journey <br> with one step</span>
-          <span class="text-2">Let's get started</span>
+            <img src="{{asset('image/rice-bg.png')}}" alt="">
+            <div class="text">
+                <span class="text-1">Prediksi Harga Beras<br> Di Kota Manado</span>
+                <span class="text-2">Sulawesi Utara</span>
+            </div>
         </div>
       </div>
     </div>
@@ -43,7 +46,7 @@
                 <input type="password" placeholder="Enter your password" required>
               </div>
               <div class="button input-box">
-                <input type="submit" value="Sumbit">
+                <input type="submit" value="Submit">
               </div>
               <div class="text sign-up-text">Don't have an account? <label for="flip">Sigup now</label></div>
             </div>
@@ -66,7 +69,7 @@
                 <input type="password" placeholder="Enter your password" required>
               </div>
               <div class="button input-box">
-                <input type="submit" value="Sumbit">
+                <input type="submit" value="Submit">
               </div>
               <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
             </div>
