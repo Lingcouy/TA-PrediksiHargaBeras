@@ -1,11 +1,11 @@
 @extends('layouts.main')
-@section('title', 'Prediksi Harga')
+@section('title', 'Prediksi Harga (Data Uji)')
 @section('container')
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
             <div class="d-flex align-items-center">
                 <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
-                <h2 class="fs-2 m-0">Prediksi Harga</h2>
+                <h2 class="fs-2 m-0">Prediksi Harga (Data Uji)</h2>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,13 +35,13 @@
                     </div>
                 @endif
 
-                <!-- Results from Coefficient Calculation -->
+                <!-- Results from Analysis -->
                 @if(isset($results) && !isset($error))
                     <div class="mt-5">
-                        <h4>Hasil Perhitungan Koefisien Regresi Linier</h4>
+                        <h4>Hasil Perhitungan Koefisien Regresi Linier (Data Uji)</h4>
                         @foreach($results as $category => $data)
                             <div class="mb-4">
-                                <a href="{{ route('manual.calculation', ['category' => $category]) }}" class="btn btn-primary" target="_blank">
+                                <a href="{{ route('manual.calculation.test', ['category' => $category]) }}" class="btn btn-primary" target="_blank">
                                     Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}
                                 </a>
                                 <p><strong>Persamaan Regresi:</strong> {{ $data['regression_equation'] }}</p>
@@ -63,7 +63,7 @@
 
                     <!-- Dropdown to Select Price Category for Chart -->
                     <div class="mt-5">
-                        <h4>Grafik Prediksi Harga Beras</h4>
+                        <h4>Grafik Prediksi Harga Beras (Data Uji)</h4>
                         <div class="mb-3">
                             <label for="priceCategory" class="form-label">Pilih Kategori Harga:</label>
                             <select id="priceCategory" class="form-select" onchange="updateChart()">
@@ -127,7 +127,7 @@
                         labels: data.dates,
                         datasets: [
                             {
-                                label: 'Harga Aktual',
+                                label: 'Harga Aktual (Data Uji)',
                                 data: actualPrices,
                                 borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 2,
@@ -135,7 +135,7 @@
                                 pointRadius: 3
                             },
                             {
-                                label: 'Harga Prediksi',
+                                label: 'Harga Prediksi (Data Uji)',
                                 data: predictedPrices,
                                 borderColor: 'rgba(255, 99, 132, 1)',
                                 borderWidth: 2,
@@ -152,7 +152,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Prediksi Harga Beras (' + category.replace('HARGA_BERAS_KUALITAS_', '') + ')'
+                                text: 'Prediksi Harga Beras (Data Uji - ' + category.replace('HARGA_BERAS_KUALITAS_', '') + ')'
                             }
                         },
                         scales: {

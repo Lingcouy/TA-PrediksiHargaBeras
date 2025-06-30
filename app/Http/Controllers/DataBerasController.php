@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataBeras;
+use App\Models\DataUji;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -107,13 +108,23 @@ class DataBerasController extends Controller
     /**
      * Analyze data for linear regression prediction of rice prices.
      */
-    public function analyze(Request $request): JsonResponse
+    public function analyze(Request $request)
     {
-        // Fetch all data from the database
+        // Fetch all data from DataBeras and DataUji
         $dataBeras = DataBeras::all();
+        $dataUji = DataUji::all();
 
-        // Prepare data for analysis
-        $cleanedData = [];
+        // Prepare training and testing data
+        $trainingData = [];
+        $testingData = [];
+        $testingDates = [];
+
+        // Convert DataUji dates to array for comparison
+        $ujiDates = $dataUji->pluck('tanggal_data_uji')->map(function($date) {
+            return $date->format('Y-m-d');
+        })->toArray();
+
+        // Split DataBeras into training and testing based on DataUji dates
         foreach ($dataBeras as $data) {
             if (is_numeric($data->harga_beras_kualitas_bawah_i) &&
                 is_numeric($data->harga_beras_kualitas_bawah_ii) &&
@@ -127,7 +138,8 @@ class DataBerasController extends Controller
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
                 is_numeric($data->pupuk_subsidi)) {
-                $cleanedData[] = [
+
+                $dataArray = [
                     'NO' => $data->id,
                     'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
                     'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
@@ -142,14 +154,24 @@ class DataBerasController extends Controller
                     'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
                     'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
                 ];
+
+                // Check if the date exists in DataUji
+                if (in_array($data->tanggal->format('Y-m-d'), $ujiDates)) {
+                    $testingData[] = $dataArray;
+                    $testingDates[] = \Carbon\Carbon::parse($data->tanggal)->format('Y-m');
+                } else {
+                    $trainingData[] = $dataArray;
+                }
             }
         }
 
-        // Split into training (first 80%) and testing (last 20%) data
-        $totalData = count($cleanedData);
-        $trainingSize = (int)($totalData * 0.8);
-        $trainingData = array_slice($cleanedData, 0, $trainingSize);
-        $testingData = array_slice($cleanedData, $trainingSize);
+        // Check if there's enough data
+        if (empty($trainingData) || empty($testingData)) {
+            return view('prediksi_harga.analyze_test', [
+                'results' => null,
+                'error' => 'Insufficient training or testing data after cleaning.'
+            ]);
+        }
 
         // Define rice price categories
         $priceCategories = [
@@ -201,15 +223,22 @@ class DataBerasController extends Controller
             }, $X_test);
 
             // Calculate coefficients
-            $A = $this->matrixMultiply($this->transpose($X_train_with_const), $X_train_with_const);
-            $B = $this->matrixMultiply($this->transpose($X_train_with_const), $Y_train);
-            $b = $this->matrixMultiply($this->inverse($A), $B);
+            try {
+                $A = $this->matrixMultiply($this->transpose($X_train_with_const), $X_train_with_const);
+                $B = $this->matrixMultiply($this->transpose($X_train_with_const), $Y_train);
+                $b = $this->matrixMultiply($this->inverse($A), $B);
+            } catch (\Exception $e) {
+                return view('prediksi_harga.analyze_test', [
+                    'results' => null,
+                    'error' => 'Error calculating coefficients: ' . $e->getMessage()
+                ]);
+            }
 
             // Build regression equation
-            $regressionEquation = "Y = " . number_format($b[0][0], 2);
+            $regressionEquation = "Y = " . number_format($b[0][0], 4);
             $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_SUBSIDI'];
             foreach ($variables as $i => $var) {
-                $regressionEquation .= " + (" . number_format($b[$i + 1][0], 2) . " * {$var})";
+                $regressionEquation .= " + (" . number_format($b[$i + 1][0], 4) . " * {$var})";
             }
 
             // Predict for testing data
@@ -217,9 +246,9 @@ class DataBerasController extends Controller
                 return $this->matrixMultiply([$row], $b)[0][0];
             }, $X_test_with_const);
 
-            // Calculate MAPE
-            $mape = array_sum(array_map(function($actual, $predicted) {
-                    return abs(($actual - $predicted) / ($actual ?: 1)) * 100;
+            // Calculate MAE
+            $mae = array_sum(array_map(function($actual, $predicted) {
+                    return abs($actual - $predicted);
                 }, $Y_test, $predictedPrices)) / (count($Y_test) ?: 1);
 
             // Calculate RMSE
@@ -229,19 +258,23 @@ class DataBerasController extends Controller
 
             $results[$priceCategory] = [
                 'regression_equation' => $regressionEquation,
+                'coefficients' => array_map(function($coef) {
+                    return number_format($coef[0], 4);
+                }, $b),
                 'predicted_prices' => array_map(function($price) {
                     return number_format($price, 2);
                 }, $predictedPrices),
                 'actual_prices' => array_map(function($price) {
                     return number_format($price, 2);
                 }, $Y_test),
-                'mape' => number_format(100 - $mape, 2),
+                'dates' => $testingDates,
+                'mae' => number_format($mae, 2),
                 'rmse' => number_format($rmse, 2),
+                'data' => $testingData,
             ];
         }
 
-        return response()->json([
-            'success' => true,
+        return view('prediksi_harga.analyze_test', [
             'results' => $results
         ]);
     }
@@ -363,10 +396,10 @@ class DataBerasController extends Controller
                 return $this->matrixMultiply([$row], $b)[0][0];
             }, $X_with_const);
 
-            // Calculate MAPE and RMSE
+            // Calculate MAE and RMSE
             $actual = array_column($cleanedData, $priceCategory);
-            $mape = array_sum(array_map(function($actual, $predicted) {
-                    return abs(($actual - $predicted) / ($actual ?: 1)) * 100;
+            $mae = array_sum(array_map(function($actual, $predicted) {
+                    return abs($actual - $predicted);
                 }, $actual, $predictedPrices)) / (count($actual) ?: 1);
             $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
                     return pow($actual - $predicted, 2);
@@ -384,7 +417,7 @@ class DataBerasController extends Controller
                     return number_format($price, 2);
                 }, array_column($cleanedData, $priceCategory)),
                 'dates' => $dates,
-                'mape' => number_format($mape, 2),
+                'mae' => number_format($mae, 2),
                 'rmse' => number_format($rmse, 2),
                 'data' => $cleanedData,
             ];
@@ -589,10 +622,10 @@ class DataBerasController extends Controller
                 $b[4] * $row[3] + $b[5] * $row[4] + $b[6] * $row[5];
         }, $X);
 
-        // Calculate MAPE and RMSE
+        // Calculate MAE and RMSE
         $actual = array_column($cleanedData, $category);
-        $mape = array_sum(array_map(function($actual, $predicted) {
-                return abs(($actual - $predicted) / ($actual ?: 1)) * 100;
+        $mae = array_sum(array_map(function($actual, $predicted) {
+                return abs($actual - $predicted);
             }, $actual, $predictedPrices)) / (count($actual) ?: 1);
         $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
                 return pow($actual - $predicted, 2);
@@ -662,7 +695,323 @@ class DataBerasController extends Controller
             'det_A' => $det_A_formatted,
             'det_Ai' => $det_Ai_formatted,
             'predicted_prices' => $predictedPricesFormatted,
-            'mape' => number_format($mape, 2),
+            'mae' => number_format($mae, 2),
+            'rmse' => number_format($rmse, 2),
+            'data_sums' => $data_sums_formatted,
+            'matrix_h' => $matrix_h_formatted,
+        ]);
+    }
+
+    /**
+     * Display manual calculation table for a specific price category using split data from analyze().
+     */
+    public function manualCalculationTest($category)
+    {
+        // Validate category
+        $validCategories = [
+            'HARGA_BERAS_KUALITAS_BAWAH_I',
+            'HARGA_BERAS_KUALITAS_BAWAH_II',
+            'HARGA_BERAS_KUALITAS_MEDIUM_I',
+            'HARGA_BERAS_KUALITAS_MEDIUM_II',
+            'HARGA_BERAS_KUALITAS_SUPER_I',
+            'HARGA_BERAS_KUALITAS_SUPER_II',
+        ];
+
+        if (!in_array($category, $validCategories)) {
+            return redirect()->route('data-beras.analyze')->with('error', 'Invalid price category');
+        }
+
+        // Fetch all data from DataBeras and DataUji
+        $dataBeras = DataBeras::all();
+        $dataUji = DataUji::all();
+
+        // Check if there's enough data
+        if ($dataBeras->count() < 7) {
+            return redirect()->route('data-beras.analyze')->with('error', 'Insufficient data: At least 7 records are required.');
+        }
+
+        // Prepare training and testing data
+        $trainingData = [];
+        $testingData = [];
+        $testingDates = [];
+
+        // Convert DataUji dates to array for comparison
+        $ujiDates = $dataUji->pluck('tanggal_data_uji')->map(function($date) {
+            return $date->format('Y-m-d');
+        })->toArray();
+
+        // Split DataBeras into training and testing based on DataUji dates
+        foreach ($dataBeras as $data) {
+            if (is_numeric($data->harga_beras_kualitas_bawah_i) &&
+                is_numeric($data->harga_beras_kualitas_bawah_ii) &&
+                is_numeric($data->harga_beras_kualitas_medium_i) &&
+                is_numeric($data->harga_beras_kualitas_medium_ii) &&
+                is_numeric($data->harga_beras_kualitas_super_i) &&
+                is_numeric($data->harga_beras_kualitas_super_ii) &&
+                is_numeric($data->inflasi_bi) &&
+                is_numeric($data->kurs_usd) &&
+                is_numeric($data->bbm_pertalite) &&
+                is_numeric($data->ump_sulut) &&
+                is_numeric($data->jumlah_penduduk) &&
+                is_numeric($data->pupuk_subsidi)) {
+
+                $dataArray = [
+                    'NO' => $data->id,
+                    'TANGGAL' => \Carbon\Carbon::parse($data->tanggal)->format('F-Y'),
+                    'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
+                    'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
+                    'HARGA_BERAS_KUALITAS_MEDIUM_I' => $data->harga_beras_kualitas_medium_i,
+                    'HARGA_BERAS_KUALITAS_MEDIUM_II' => $data->harga_beras_kualitas_medium_ii,
+                    'HARGA_BERAS_KUALITAS_SUPER_I' => $data->harga_beras_kualitas_super_i,
+                    'HARGA_BERAS_KUALITAS_SUPER_II' => $data->harga_beras_kualitas_super_ii,
+                    'INFLASI_BI' => $data->inflasi_bi,
+                    'KURS_USD' => $data->kurs_usd,
+                    'BBM_PERTALITE' => $data->bbm_pertalite,
+                    'UMP_SULUT' => $data->ump_sulut,
+                    'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
+                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                ];
+
+                // Check if the date exists in DataUji
+                if (in_array($data->tanggal->format('Y-m-d'), $ujiDates)) {
+                    $testingData[] = $dataArray;
+                    $testingDates[] = \Carbon\Carbon::parse($data->tanggal)->format('F-Y');
+                } else {
+                    $trainingData[] = $dataArray;
+                }
+            }
+        }
+
+        // Check if there's enough data
+        if (empty($trainingData) || empty($testingData)) {
+            return redirect()->route('data-beras.analyze')->with('error', 'Insufficient training or testing data after cleaning.');
+        }
+
+        // Prepare training data for the selected category
+        $X_train = array_map(function($row) {
+            return [
+                $row['INFLASI_BI'],
+                $row['KURS_USD'],
+                $row['BBM_PERTALITE'],
+                $row['UMP_SULUT'],
+                $row['JUMLAH_PENDUDUK'],
+                $row['PUPUK_SUBSIDI']
+            ];
+        }, $trainingData);
+        $Y_train = array_column($trainingData, $category);
+        $Y_train = array_map(function($item) {
+            return [$item];
+        }, $Y_train);
+
+        // Prepare testing data for predictions
+        $X_test = array_map(function($row) {
+            return [
+                $row['INFLASI_BI'],
+                $row['KURS_USD'],
+                $row['BBM_PERTALITE'],
+                $row['UMP_SULUT'],
+                $row['JUMLAH_PENDUDUK'],
+                $row['PUPUK_SUBSIDI']
+            ];
+        }, $testingData);
+        $Y_test = array_column($testingData, $category);
+
+        // Calculate sums for training data
+        $data_sums = [
+            'Y' => array_sum(array_column($trainingData, $category)),
+            'X1' => array_sum(array_column($trainingData, 'INFLASI_BI')),
+            'X2' => array_sum(array_column($trainingData, 'KURS_USD')),
+            'X3' => array_sum(array_column($trainingData, 'BBM_PERTALITE')),
+            'X4' => array_sum(array_column($trainingData, 'UMP_SULUT')),
+            'X5' => array_sum(array_column($trainingData, 'JUMLAH_PENDUDUK')),
+            'X6' => array_sum(array_column($trainingData, 'PUPUK_SUBSIDI')),
+        ];
+
+        // Add intercept column for training data
+        $X_train_with_const = array_map(function($row) {
+            return array_merge([1], $row);
+        }, $X_train);
+
+        // Calculate pairwise products and squares for training data
+        $pairwiseCalculations = [];
+        foreach ($trainingData as $index => $row) {
+            $pairwiseCalculations[] = [
+                'X1Y' => $row['INFLASI_BI'] * $row[$category],
+                'X2Y' => $row['KURS_USD'] * $row[$category],
+                'X3Y' => $row['BBM_PERTALITE'] * $row[$category],
+                'X4Y' => $row['UMP_SULUT'] * $row[$category],
+                'X5Y' => $row['JUMLAH_PENDUDUK'] * $row[$category],
+                'X6Y' => $row['PUPUK_SUBSIDI'] * $row[$category],
+                'X1X2' => $row['INFLASI_BI'] * $row['KURS_USD'],
+                'X1X3' => $row['INFLASI_BI'] * $row['BBM_PERTALITE'],
+                'X1X4' => $row['INFLASI_BI'] * $row['UMP_SULUT'],
+                'X1X5' => $row['INFLASI_BI'] * $row['JUMLAH_PENDUDUK'],
+                'X1X6' => $row['INFLASI_BI'] * $row['PUPUK_SUBSIDI'],
+                'X2X3' => $row['KURS_USD'] * $row['BBM_PERTALITE'],
+                'X2X4' => $row['KURS_USD'] * $row['UMP_SULUT'],
+                'X2X5' => $row['KURS_USD'] * $row['JUMLAH_PENDUDUK'],
+                'X2X6' => $row['KURS_USD'] * $row['PUPUK_SUBSIDI'],
+                'X3X4' => $row['BBM_PERTALITE'] * $row['UMP_SULUT'],
+                'X3X5' => $row['BBM_PERTALITE'] * $row['JUMLAH_PENDUDUK'],
+                'X3X6' => $row['BBM_PERTALITE'] * $row['PUPUK_SUBSIDI'],
+                'X4X5' => $row['UMP_SULUT'] * $row['JUMLAH_PENDUDUK'],
+                'X4X6' => $row['UMP_SULUT'] * $row['PUPUK_SUBSIDI'],
+                'X5X6' => $row['JUMLAH_PENDUDUK'] * $row['PUPUK_SUBSIDI'],
+                'X1_2' => $row['INFLASI_BI'] * $row['INFLASI_BI'],
+                'X2_2' => $row['KURS_USD'] * $row['KURS_USD'],
+                'X3_2' => $row['BBM_PERTALITE'] * $row['BBM_PERTALITE'],
+                'X4_2' => $row['UMP_SULUT'] * $row['UMP_SULUT'],
+                'X5_2' => $row['JUMLAH_PENDUDUK'] * $row['JUMLAH_PENDUDUK'],
+                'X6_2' => $row['PUPUK_SUBSIDI'] * $row['PUPUK_SUBSIDI'],
+            ];
+        }
+
+        // Calculate sums for matrix A (X^T X) using training data
+        $X_transpose = $this->transpose($X_train_with_const);
+        $A = $this->matrixMultiply($X_transpose, $X_train_with_const);
+        $B = $this->matrixMultiply($X_transpose, $Y_train);
+
+        // Calculate matrix H (X^T Y)
+        $matrix_h = [
+            $data_sums['Y'],
+            array_sum(array_column($pairwiseCalculations, 'X1Y')),
+            array_sum(array_column($pairwiseCalculations, 'X2Y')),
+            array_sum(array_column($pairwiseCalculations, 'X3Y')),
+            array_sum(array_column($pairwiseCalculations, 'X4Y')),
+            array_sum(array_column($pairwiseCalculations, 'X5Y')),
+            array_sum(array_column($pairwiseCalculations, 'X6Y')),
+        ];
+
+        // Format matrix H for display
+        $matrix_h_formatted = array_map(function($value) {
+            return number_format($value, 0);
+        }, $matrix_h);
+
+        // Calculate matrices A_i for Cramer's rule
+        $A_matrices = [];
+        for ($i = 0; $i < 7; $i++) {
+            $A_i = $A;
+            for ($j = 0; $j < 7; $j++) {
+                $A_i[$j][$i] = $B[$j][0];
+            }
+            $A_matrices[$i] = $A_i;
+        }
+
+        // Calculate determinants
+        try {
+            $det_A = $this->determinant($A);
+            $det_Ai = array_map(function($A_i) {
+                return $this->determinant($A_i);
+            }, $A_matrices);
+
+            // Calculate coefficients using Cramer's rule
+            $b = array_map(function($det_Ai, $index) use ($det_A) {
+                return $det_A != 0 ? $det_Ai / $det_A : 0;
+            }, $det_Ai, array_keys($det_Ai));
+        } catch (\Exception $e) {
+            return redirect()->route('data-beras.analyze')->with('error', 'Error calculating coefficients: ' . $e->getMessage());
+        }
+
+        // Build regression equation
+        $regressionEquation = "Y = " . number_format($b[0], 6);
+        $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_SUBSIDI'];
+        foreach ($variables as $i => $var) {
+            $regressionEquation .= " + (" . number_format($b[$i + 1], 6) . " * {$var})";
+        }
+
+        // Calculate predicted prices for testing data
+        $X_test_with_const = array_map(function($row) {
+            return array_merge([1], $row);
+        }, $X_test);
+        $predictedPrices = array_map(function($row) use ($b) {
+            return $b[0] + $b[1] * $row[0] + $b[2] * $row[1] + $b[3] * $row[2] +
+                $b[4] * $row[3] + $b[5] * $row[4] + $b[6] * $row[5];
+        }, $X_test);
+
+        // Calculate MAE and RMSE for testing data
+        $mae = array_sum(array_map(function($actual, $predicted) {
+                return abs($actual - $predicted);
+            }, $Y_test, $predictedPrices)) / (count($Y_test) ?: 1);
+        $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
+                return pow($actual - $predicted, 2);
+            }, $Y_test, $predictedPrices)) / (count($Y_test) ?: 1));
+
+        // Format training data for view
+        $dataTable = array_map(function($row, $index) use ($category) {
+            return [
+                'NO' => $row['NO'],
+                'TANGGAL' => $row['TANGGAL'],
+                'Y' => number_format($row[$category], 2),
+                'X1' => number_format($row['INFLASI_BI'], 2),
+                'X2' => number_format($row['KURS_USD'], 2),
+                'X3' => number_format($row['BBM_PERTALITE'], 2),
+                'X4' => number_format($row['UMP_SULUT'], 2),
+                'X5' => number_format($row['JUMLAH_PENDUDUK'], 2),
+                'X6' => number_format($row['PUPUK_SUBSIDI'], 2),
+            ];
+        }, $trainingData, array_keys($trainingData));
+
+        // Format testing data for predicted prices table
+        $testDataTable = array_map(function($row, $index) use ($category, $predictedPrices, $testingDates) {
+            return [
+                'NO' => $row['NO'],
+                'TANGGAL' => $testingDates[$index],
+                'Y' => number_format($row[$category], 2),
+                'Y_PREDICTED' => number_format($predictedPrices[$index], 5),
+            ];
+        }, $testingData, array_keys($testingData));
+
+        $pairwiseSums = [];
+        foreach ($pairwiseCalculations[0] as $key => $value) {
+            $pairwiseSums[$key] = array_sum(array_column($pairwiseCalculations, $key));
+        }
+
+        // Format matrices and determinants
+        $A_formatted = array_map(function($row) {
+            return array_map(function($value) {
+                return number_format($value, 0);
+            }, $row);
+        }, $A);
+        $A_matrices_formatted = array_map(function($matrix) {
+            return array_map(function($row) {
+                return array_map(function($value) {
+                    return number_format($value, 0);
+                }, $row);
+            }, $matrix);
+        }, $A_matrices);
+
+        $det_A_formatted = sprintf('%.5E', $det_A);
+        $det_Ai_formatted = array_map(function($det) {
+            return sprintf('%.5E', $det);
+        }, $det_Ai);
+
+        $coefficients = array_map(function($coef) {
+            return number_format($coef, 6);
+        }, $b);
+
+        $predictedPricesFormatted = array_map(function($price) {
+            return number_format($price, 5);
+        }, $predictedPrices);
+
+        // Format sums for display
+        $data_sums_formatted = array_map(function($sum) {
+            return number_format($sum, 2);
+        }, $data_sums);
+
+        return view('prediksi_harga.manual_calculation_test', [
+            'category' => $category,
+            'regression_equation' => $regressionEquation,
+            'coefficients' => $coefficients,
+            'data_table' => $dataTable,
+            'test_data_table' => $testDataTable,
+            'pairwise_calculations' => $pairwiseCalculations,
+            'pairwise_sums' => $pairwiseSums,
+            'A_matrix' => $A_formatted,
+            'A_matrices' => $A_matrices_formatted,
+            'det_A' => $det_A_formatted,
+            'det_Ai' => $det_Ai_formatted,
+            'predicted_prices' => $predictedPricesFormatted,
+            'mae' => number_format($mae, 2),
             'rmse' => number_format($rmse, 2),
             'data_sums' => $data_sums_formatted,
             'matrix_h' => $matrix_h_formatted,

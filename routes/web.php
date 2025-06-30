@@ -32,3 +32,8 @@ Route::get('/calculate-coefficients', [DataBerasController::class, 'calculateCoe
 Route::get('/calculate-coefficients', [DataBerasController::class, 'calculateCoefficients'])->name('calculate.coefficients');
 Route::get('/manual-calculation/{category}', [DataBerasController::class, 'manualCalculation'])->name('manual.calculation');
 Route::get('/prediksi-harga', [DataBerasController::class, 'calculateCoefficients'])->name('prediksi-harga');
+
+//Route::get('/analyze', [DataBerasController::class, 'analyze'])->name('data-beras.analyze');
+Route::get('/analyze', [DataBerasController::class, 'analyze'])->name('data-beras.analyze');
+
+Route::get('/manual-calculation-test/{category}', [DataBerasController::class, 'manualCalculationTest'])->name('manual.calculation.test');

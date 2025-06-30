@@ -1,11 +1,12 @@
+```blade
 @extends('layouts.main')
-@section('title', 'Manual Calculation - ' . str_replace('HARGA_BERAS_KUALITAS_', '', $category))
+@section('title', 'Manual Calculation (Data Uji) - ' . str_replace('HARGA_BERAS_KUALITAS_', '', $category))
 @section('container')
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
             <div class="d-flex align-items-center">
                 <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
-                <h2 class="fs-2 m-0">Manual Calculation - Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</h2>
+                <h2 class="fs-2 m-0">Manual Calculation (Data Uji) - Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</h2>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,14 +29,14 @@
 
         <div class="container-fluid px-4">
             <div class="row my-3">
-                <a href="{{ route('calculate.coefficients') }}" class="btn btn-secondary mb-3">Back to Coefficients</a>
-                <h4>Manual Calculation for Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</h4>
+                <a href="{{ route('data-beras.analyze') }}" class="btn btn-secondary mb-3">Back to Analyze</a>
+                <h4>Manual Calculation for Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }} (Data Uji)</h4>
                 <p><strong>Persamaan Regresi:</strong> {{ $regression_equation }}</p>
                 <p><strong>MAE:</strong> {{ $mae }}</p>
                 <p><strong>RMSE:</strong> {{ $rmse }}</p>
 
-                <!-- Step 1: Data Table -->
-                <h5>1. Data</h5>
+                <!-- Step 1: Training Data Table -->
+                <h5>1. Training Data</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -92,7 +93,7 @@
                 </div>
 
                 <!-- Step 2: Pairwise Products and Squares -->
-                <h5>2. Pairwise Products and Squares</h5>
+                <h5>2. Pairwise Products and Squares (Training Data)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -192,7 +193,7 @@
                 </div>
 
                 <!-- Matrix H -->
-                <h5>3. Matriks H</h5>
+                <h5>3. Matriks H (Training Data)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -294,8 +295,8 @@
                     </table>
                 </div>
 
-                <!-- Step 7: Predicted Prices -->
-                <h5>7. Y PREDICTED</h5>
+                <!-- Step 7: Predicted Prices (Testing Data) -->
+                <h5>7. Y PREDICTED (Testing Data)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -307,11 +308,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($data_table as $index => $row)
+                        @foreach($test_data_table as $row)
                             <tr>
                                 <td>{{ $row['NO'] }}</td>
                                 <td>{{ $row['TANGGAL'] }}</td>
-                                <td>{{ $predicted_prices[$index] }}</td>
+                                <td>{{ $row['Y_PREDICTED'] }}</td>
                                 <td>{{ $row['Y'] }}</td>
                             </tr>
                         @endforeach
