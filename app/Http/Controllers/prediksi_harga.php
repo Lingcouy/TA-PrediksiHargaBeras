@@ -139,6 +139,16 @@ class prediksi_harga extends Controller
                 return abs(($actual - $predicted) / $actual);
             }, $Y_test, $predictedPrices)) / count($Y_test) * 100;
 
+        // Hitung RMSE (Root Mean Squared Error)
+        $rmse = sqrt(array_sum(array_map(function ($actual, $predicted) {
+                if (is_array($actual)) {
+                    $actual = $actual[0]; // Pastikan $actual adalah angka
+                }
+                if (is_array($predicted)) {
+                    $predicted = $predicted[0]; // Pastikan $predicted adalah angka
+                }
+                return pow(($actual - $predicted), 2);
+            }, $Y_test, $predictedPrices)) / count($Y_test));
 
         // Ambil harga aktual yang relevan sesuai bulan
         $actualPrices = [];
@@ -154,8 +164,10 @@ class prediksi_harga extends Controller
             'regressionEquation' => $regressionEquation,
             'predictedPrices' => $predictedPrices,
             'mape' => (100 - $mape),
+            'rmse' => $rmse,
             'actualPrices' => $actualPrices,
         ]);
+
 
     }
 

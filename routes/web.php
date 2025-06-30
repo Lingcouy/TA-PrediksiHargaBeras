@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\data_prediksi;
+use App\Http\Controllers\DataBerasController;
 use App\Http\Controllers\DataPrediksiController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\prediksi_harga;
@@ -20,7 +21,14 @@ Route::resource('/keloladataprediksi', DataPrediksiController::class);
 
 Route::get('/data-prediksi', [data_prediksi::class, 'index'])->name('data-prediksi');
 
-Route::get('/prediksi-harga', [prediksi_harga::class, 'prediksi'])->name('prediksi-harga');
+//Route::get('/prediksi-harga', [prediksi_harga::class, 'prediksi'])->name('prediksi-harga');
 
 // Add a new route for the analyze method
 Route::get('/analyze-prediksi', [prediksi_harga::class, 'analyze'])->name('analyze-prediksi');
+
+// Route::get('/calculate-coefficients', [DataBerasController::class, 'calculateCoefficients']);
+Route::get('/calculate-coefficients', [DataBerasController::class, 'calculateCoefficients'])->name('calculate.coefficients');
+
+Route::get('/calculate-coefficients', [DataBerasController::class, 'calculateCoefficients'])->name('calculate.coefficients');
+Route::get('/manual-calculation/{category}', [DataBerasController::class, 'manualCalculation'])->name('manual.calculation');
+Route::get('/prediksi-harga', [DataBerasController::class, 'calculateCoefficients'])->name('prediksi-harga');

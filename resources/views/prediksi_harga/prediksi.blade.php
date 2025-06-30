@@ -28,45 +28,6 @@
 
         <div class="container-fluid px-4">
             <div class="row my-3">
-                <h3 class="fs-3 mb-3">Pilih Periode Prediksi Harga</h3>
-                <form method="GET" action="/prediksi-harga">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-4">
-                            <label for="bulan_mulai" class="form-label">Bulan Mulai</label>
-                            <select class="form-select" name="bulan_mulai" id="bulan_mulai">
-                                @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan_mulai') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                                        {{ DateTime::createFromFormat('!m', $i)->format('F') }}
-                                    </option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="bulan_akhir" class="form-label">Bulan Akhir</label>
-                            <select class="form-select" name="bulan_akhir" id="bulan_akhir">
-                                @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan_akhir') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                                        {{ DateTime::createFromFormat('!m', $i)->format('F') }}
-                                    </option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="tahun" class="form-label">Tahun</label>
-                            <select class="form-select" name="tahun" id="tahun">
-                                @for ($year = date('Y'); $year >= 2000; $year--)
-                                    <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                                @endfor
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mt-4 justify-content-center">
-                        <div class="col-md-3 d-flex justify-content-around">
-                            <button type="submit" class="btn btn-success">Prediksi Harga</button>
-                            <button type="submit" class="btn btn-success">Tampilkan Perhitungan</button>
-                        </div>
-                    </div>
-                </form>
 
                 <!-- Results from Analysis -->
                 @if(isset($regressionEquation) && isset($predictedPrices))
@@ -82,22 +43,22 @@
                                 <li>
                                     Bulan {{ $index + 1 }}:
                                     <span><strong>Harga Aktual:</strong>
-            @if($actualPrice !== null)
+                        @if($actualPrice !== null)
                                             Rp {{ number_format($actualPrice, 2, ',', '.') }}
                                         @else
                                             Data tidak tersedia
                                         @endif
-        </span> |
+                    </span> |
                                     <span><strong>Harga Prediksi:</strong> Rp {{ number_format($predictedPrice[0], 2, ',', '.') }}</span>
                                 </li>
                             @endforeach
-
                         </ul>
 
-
                         <p><strong>MAPE:</strong> {{ number_format($mape, 2) }}%</p>
+                        <p><strong>RMSE:</strong> {{ number_format($rmse, 2, ',', '.') }}</p> <!-- Tambahkan hasil RMSE -->
                     </div>
                 @endif
+
 
                 <!-- Grafik Prediksi Harga Beras -->
                 <div class="mt-5">
