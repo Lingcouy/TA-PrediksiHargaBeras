@@ -1,25 +1,23 @@
 @extends('layouts.main')
+@section('title', 'Ubah Data Prediksi')
 
 @section('container')
-    <!-- Page Content -->
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
             <div class="d-flex align-items-center">
                 <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
                 <h2 class="fs-2 m-0">DATA PREDIKSI</h2>
             </div>
-
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-2"></i>
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-2"></i>{{ auth()->user()->name ?? 'Guest' }}
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown"></ul>
                     </li>
@@ -30,123 +28,176 @@
         <div class="container-fluid px-4">
             <div class="row my-3">
                 <h3 class="fs-3 mb-3 text-center">Ubah Data Prediksi</h3>
-                <form method="POST" action="{{ route('keloladataprediksi.update', $dataPrediksi->idDataPrediksi) }}">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger" role="alert">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                <form method="POST" action="{{ route('keloladataprediksi.update', $dataBeras->id) }}">
                     @csrf
                     @method('PUT')
-                    <a href="/keloladataprediksi" class="btn btn-outline-success btn-sm mb-3"><i class="fas fa-arrow-left"></i>
-                        Kembali</a>
+                    <a href="{{ route('keloladataprediksi.index') }}"
+                       class="btn btn-outline-success btn-sm mb-3"><i class="fas fa-arrow-left"></i> Kembali</a>
 
                     <div class="container-fluid border border-1 border-success rounded mx-auto">
                         <div class="row mb-3 mt-3">
-                            <label for="periode" class="col-sm-2 col-form-label">Periode</label>
+                            <label for="bulan" class="col-sm-2 col-form-label">Tanggal</label>
                             <div class="col-sm-5">
                                 <select class="form-select @error('bulan') is-invalid @enderror" name="bulan" id="bulanSelect" required>
                                     <option value="" disabled>Pilih Bulan</option>
-                                    <option value="01" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '01' ? 'selected' : '' }}>Januari</option>
-                                    <option value="02" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '02' ? 'selected' : '' }}>Februari</option>
-                                    <option value="03" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '03' ? 'selected' : '' }}>Maret</option>
-                                    <option value="04" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '04' ? 'selected' : '' }}>April</option>
-                                    <option value="05" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '05' ? 'selected' : '' }}>Mei</option>
-                                    <option value="06" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '06' ? 'selected' : '' }}>Juni</option>
-                                    <option value="07" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '07' ? 'selected' : '' }}>Juli</option>
-                                    <option value="08" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '08' ? 'selected' : '' }}>Agustus</option>
-                                    <option value="09" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '09' ? 'selected' : '' }}>September</option>
-                                    <option value="10" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '10' ? 'selected' : '' }}>Oktober</option>
-                                    <option value="11" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '11' ? 'selected' : '' }}>November</option>
-                                    <option value="12" {{ old('bulan', substr($dataPrediksi->periode, 5, 2)) == '12' ? 'selected' : '' }}>Desember</option>
+                                    @for ($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ old('bulan', \Carbon\Carbon::parse($dataBeras->tanggal)->month) == $i ? 'selected' : '' }}>
+                                            {{ \Carbon\Carbon::create()->month($i)->format('F') }}
+                                        </option>
+                                    @endfor
                                 </select>
                                 @error('bulan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-sm-5">
-                                <select class="form-select @error('tahun') is-invalid @enderror" name="tahun" id="tahunSelect" required>
-                                    <option value="" disabled>Pilih Tahun</option>
-                                    @for ($year = 2000; $year <= date('Y'); $year++)
-                                        <option value="{{ $year }}" {{ old('tahun', substr($dataPrediksi->periode, 0, 4)) == $year ? 'selected' : '' }}>
-                                            {{ $year }}
-                                        </option>
-                                    @endfor
-                                </select>
+                                <input type="number" class="form-control @error('tahun') is-invalid @enderror"
+                                       name="tahun" id="tahunSelect"
+                                       value="{{ old('tahun', \Carbon\Carbon::parse($dataBeras->tanggal)->year) }}"
+                                       min="2000" max="2099" required>
                                 @error('tahun')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-
-                        <!-- Input lainnya -->
                         <div class="row mb-3">
-                            <label for="hargaBeras" class="col-sm-2 col-form-label">Harga Beras</label>
+                            <label for="harga_beras_kualitas_bawah_i" class="col-sm-2 col-form-label">Harga Beras Bawah I</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('hargaBeras') is-invalid @enderror"
-                                    id="hargaBeras" name="hargaBeras" value="{{ old('hargaBeras', $dataPrediksi->hargaBeras) }}">
-                                @error('hargaBeras')
+                                <input type="number" step="0.01" class="form-control @error('harga_beras_kualitas_bawah_i') is-invalid @enderror"
+                                       id="harga_beras_kualitas_bawah_i" name="harga_beras_kualitas_bawah_i"
+                                       value="{{ old('harga_beras_kualitas_bawah_i', $dataBeras->harga_beras_kualitas_bawah_i) }}">
+                                @error('harga_beras_kualitas_bawah_i')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="produksiPadi" class="col-sm-2 col-form-label">Produksi Padi</label>
+                            <label for="harga_beras_kualitas_bawah_ii" class="col-sm-2 col-form-label">Harga Beras Bawah II</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('produksiPadi') is-invalid @enderror"
-                                    id="produksiPadi" name="produksiPadi" value="{{ old('produksiPadi', $dataPrediksi->produksiPadi) }}">
-                                @error('produksiPadi')
+                                <input type="number" step="0.01" class="form-control @error('harga_beras_kualitas_bawah_ii') is-invalid @enderror"
+                                       id="harga_beras_kualitas_bawah_ii" name="harga_beras_kualitas_bawah_ii"
+                                       value="{{ old('harga_beras_kualitas_bawah_ii', $dataBeras->harga_beras_kualitas_bawah_ii) }}">
+                                @error('harga_beras_kualitas_bawah_ii')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="produksiBeras" class="col-sm-2 col-form-label">Produksi Beras</label>
+                            <label for="harga_beras_kualitas_medium_i" class="col-sm-2 col-form-label">Harga Beras Medium I</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('produksiBeras') is-invalid @enderror"
-                                    id="produksiBeras" name="produksiBeras" value="{{ old('produksiBeras', $dataPrediksi->produksiBeras) }}">
-                                @error('produksiBeras')
+                                <input type="number" step="0.01" class="form-control @error('harga_beras_kualitas_medium_i') is-invalid @enderror"
+                                       id="harga_beras_kualitas_medium_i" name="harga_beras_kualitas_medium_i"
+                                       value="{{ old('harga_beras_kualitas_medium_i', $dataBeras->harga_beras_kualitas_medium_i) }}">
+                                @error('harga_beras_kualitas_medium_i')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="luasPanenPadi" class="col-sm-2 col-form-label">Luas Panen Padi</label>
+                            <label for="harga_beras_kualitas_medium_ii" class="col-sm-2 col-form-label">Harga Beras Medium II</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('luasPanenPadi') is-invalid @enderror"
-                                    id="luasPanenPadi" name="luasPanenPadi" value="{{ old('luasPanenPadi', $dataPrediksi->luasPanenPadi) }}">
-                                @error('luasPanenPadi')
+                                <input type="number" step="0.01" class="form-control @error('harga_beras_kualitas_medium_ii') is-invalid @enderror"
+                                       id="harga_beras_kualitas_medium_ii" name="harga_beras_kualitas_medium_ii"
+                                       value="{{ old('harga_beras_kualitas_medium_ii', $dataBeras->harga_beras_kualitas_medium_ii) }}">
+                                @error('harga_beras_kualitas_medium_ii')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="indeksHargaKonsumen" class="col-sm-2 col-form-label">IHK</label>
+                            <label for="harga_beras_kualitas_super_i" class="col-sm-2 col-form-label">Harga Beras Super I</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('indeksHargaKonsumen') is-invalid @enderror"
-                                    id="indeksHargaKonsumen" name="indeksHargaKonsumen" value="{{ old('indeksHargaKonsumen', $dataPrediksi->indeksHargaKonsumen) }}">
-                                @error('indeksHargaKonsumen')
+                                <input type="number" step="0.01" class="form-control @error('harga_beras_kualitas_super_i') is-invalid @enderror"
+                                       id="harga_beras_kualitas_super_i" name="harga_beras_kualitas_super_i"
+                                       value="{{ old('harga_beras_kualitas_super_i', $dataBeras->harga_beras_kualitas_super_i) }}">
+                                @error('harga_beras_kualitas_super_i')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="inflasi" class="col-sm-2 col-form-label">Inflasi</label>
+                            <label for="harga_beras_kualitas_super_ii" class="col-sm-2 col-form-label">Harga Beras Super II</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('inflasi') is-invalid @enderror"
-                                    id="inflasi" name="inflasi" value="{{ old('inflasi', $dataPrediksi->inflasi) }}">
-                                @error('inflasi')
+                                <input type="number" step="0.01" class="form-control @error('harga_beras_kualitas_super_ii') is-invalid @enderror"
+                                       id="harga_beras_kualitas_super_ii" name="harga_beras_kualitas_super_ii"
+                                       value="{{ old('harga_beras_kualitas_super_ii', $dataBeras->harga_beras_kualitas_super_ii) }}">
+                                @error('harga_beras_kualitas_super_ii')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="curahHujan" class="col-sm-2 col-form-label">Curah Hujan</label>
+                            <label for="inflasi_bi" class="col-sm-2 col-form-label">Inflasi BI</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control @error('curahHujan') is-invalid @enderror"
-                                    id="curahHujan" name="curahHujan" value="{{ old('curahHujan', $dataPrediksi->curahHujan) }}">
-                                @error('curahHujan')
+                                <input type="number" step="0.01" class="form-control @error('inflasi_bi') is-invalid @enderror"
+                                       id="inflasi_bi" name="inflasi_bi" value="{{ old('inflasi_bi', $dataBeras->inflasi_bi) }}">
+                                @error('inflasi_bi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-
-                        <!-- Tombol Submit -->
+                        <div class="row mb-3">
+                            <label for="kurs_usd" class="col-sm-2 col-form-label">Kurs USD</label>
+                            <div class="col-sm-10">
+                                <input type="number" step="0.01" class="form-control @error('kurs_usd') is-invalid @enderror"
+                                       id="kurs_usd" name="kurs_usd" value="{{ old('kurs_usd', $dataBeras->kurs_usd) }}">
+                                @error('kurs_usd')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="bbm_pertalite" class="col-sm-2 col-form-label">BBM Pertalite</label>
+                            <div class="col-sm-10">
+                                <input type="number" step="0.01" class="form-control @error('bbm_pertalite') is-invalid @enderror"
+                                       id="bbm_pertalite" name="bbm_pertalite" value="{{ old('bbm_pertalite', $dataBeras->bbm_pertalite) }}">
+                                @error('bbm_pertalite')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="ump_sulut" class="col-sm-2 col-form-label">UMP Sulut</label>
+                            <div class="col-sm-10">
+                                <input type="number" step="0.01" class="form-control @error('ump_sulut') is-invalid @enderror"
+                                       id="ump_sulut" name="ump_sulut" value="{{ old('ump_sulut', $dataBeras->ump_sulut) }}">
+                                @error('ump_sulut')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="jumlah_penduduk" class="col-sm-2 col-form-label">Jumlah Penduduk</label>
+                            <div class="col-sm-10">
+                                <input type="number" step="1" class="form-control @error('jumlah_penduduk') is-invalid @enderror"
+                                       id="jumlah_penduduk" name="jumlah_penduduk" value="{{ old('jumlah_penduduk', $dataBeras->jumlah_penduduk) }}">
+                                @error('jumlah_penduduk')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="pupuk_subsidi" class="col-sm-2 col-form-label">Pupuk Subsidi</label>
+                            <div class="col-sm-10">
+                                <input type="number" step="0.01" class="form-control @error('pupuk_subsidi') is-invalid @enderror"
+                                       id="pupuk_subsidi" name="pupuk_subsidi" value="{{ old('pupuk_subsidi', $dataBeras->pupuk_subsidi) }}">
+                                @error('pupuk_subsidi')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="row mb-3">
                             <div class="col-sm-3 offset-sm-2">
                                 <button type="submit" class="btn btn-success">Update</button>
@@ -159,10 +210,9 @@
     </div>
 
     <script>
-        document.querySelector('form').addEventListener('submit', function(event) {
+        document.querySelector('form').addEventListener('submit', function (event) {
             const bulan = document.querySelector('#bulanSelect').value;
             const tahun = document.querySelector('#tahunSelect').value;
-
             if (!bulan || !tahun) {
                 event.preventDefault();
                 alert('Silakan pilih bulan dan tahun!');

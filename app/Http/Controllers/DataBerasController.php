@@ -106,6 +106,225 @@ class DataBerasController extends Controller
     }
 
     /**
+     * Display dashboard data with latest rice prices and statistics.
+     */
+    public function dashboard(Request $request)
+    {
+        // Define available rice price fields
+        $priceFields = [
+            'harga_beras_kualitas_bawah_i' => 'Bawah I',
+            'harga_beras_kualitas_bawah_ii' => 'Bawah II',
+            'harga_beras_kualitas_medium_i' => 'Medium I',
+            'harga_beras_kualitas_medium_ii' => 'Medium II',
+            'harga_beras_kualitas_super_i' => 'Super I',
+            'harga_beras_kualitas_super_ii' => 'Super II',
+        ];
+
+        // Get selected rice type from request, default to 'harga_beras_kualitas_bawah_i'
+        $selectedType = $request->input('rice_type', 'harga_beras_kualitas_bawah_i');
+
+        // Validate selected rice type
+        if (!array_key_exists($selectedType, $priceFields)) {
+            $selectedType = 'harga_beras_kualitas_bawah_i';
+        }
+
+        // Fetch the latest record for "Harga Terkini"
+        $latestData = DataBeras::orderBy('tanggal', 'desc')->first();
+
+        // Fetch all records to calculate statistics
+        $allData = DataBeras::all();
+
+        // Calculate statistics for the selected rice type
+        $prices = $allData->pluck($selectedType)->filter()->toArray();
+        $averagePrice = !empty($prices) ? array_sum($prices) / count($prices) : 0;
+        $highestPrice = !empty($prices) ? max($prices) : 0;
+        $lowestPrice = !empty($prices) ? min($prices) : 0;
+
+        // Fetch recent data for the table (last 12 records)
+        $recentData = DataBeras::orderBy('tanggal', 'desc')->get();
+
+        return view('dashboard', [
+            'latest' => $latestData,
+            'average_price' => number_format($averagePrice, 2),
+            'highest_price' => number_format($highestPrice, 2),
+            'lowest_price' => number_format($lowestPrice, 2),
+            'recent_data' => $recentData,
+            'price_fields' => $priceFields,
+            'selected_type' => $selectedType,
+        ]);
+    }
+
+    /**
+     * Display the listing of DataBeras for Kelola Data Prediksi.
+     */
+    public function kelola_data_prediksi(Request $request)
+    {
+        $query = DataBeras::query();
+
+        if ($request->has('tahun') && !empty($request->tahun)) {
+            $request->validate(['tahun' => 'numeric|digits:4']);
+            $query->whereYear('tanggal', $request->tahun);
+        }
+
+        if ($request->has('bulan') && !empty($request->bulan)) {
+            $request->validate(['bulan' => 'numeric|between:1,12']);
+            $query->whereMonth('tanggal', str_pad($request->bulan, 2, '0', STR_PAD_LEFT));
+        }
+
+        $dataBeras = $query->orderBy('tanggal', 'desc')->paginate(10);
+
+        return view('dataPrediksi.kelolaDataPrediksi', [
+            'dataBeras' => $dataBeras,
+        ])->with('info', $dataBeras->isEmpty() ? 'No data found for the selected filters.' : null);
+    }
+
+    /**
+     * Show the form for creating a new DataBeras resource.
+     */
+    public function create_new()
+    {
+        return view('dataPrediksi.aksi.create');
+    }
+
+    /**
+     * Show the form for editing the specified DataBeras resource.
+     */
+    public function edit_new($id)
+    {
+        $dataBeras = DataBeras::findOrFail($id);
+        return view('dataPrediksi.aksi.edit', compact('dataBeras'));
+    }
+
+    /**
+     * Store a newly created DataBeras resource in storage.
+     */
+    public function store_new(Request $request)
+    {
+        $validated = $request->validate([
+            'bulan' => 'required|numeric|between:1,12',
+            'tahun' => 'required|numeric|digits:4',
+            'harga_beras_kualitas_bawah_i' => 'required|numeric|min:0',
+            'harga_beras_kualitas_bawah_ii' => 'required|numeric|min:0',
+            'harga_beras_kualitas_medium_i' => 'required|numeric|min:0',
+            'harga_beras_kualitas_medium_ii' => 'required|numeric|min:0',
+            'harga_beras_kualitas_super_i' => 'required|numeric|min:0',
+            'harga_beras_kualitas_super_ii' => 'required|numeric|min:0',
+            'inflasi_bi' => 'required|numeric',
+            'kurs_usd' => 'required|numeric|min:0',
+            'bbm_pertalite' => 'required|numeric|min:0',
+            'ump_sulut' => 'required|numeric|min:0',
+            'jumlah_penduduk' => 'required|numeric|min:0',
+            'pupuk_subsidi' => 'required|numeric|min:0',
+        ], [
+            'bulan.between' => 'Bulan harus antara 1 dan 12.',
+            'tahun.digits' => 'Tahun harus terdiri dari 4 digit.',
+        ]);
+
+        // Combine bulan and tahun into tanggal
+        $tanggal = $validated['tahun'] . '-' . str_pad($validated['bulan'], 2, '0', STR_PAD_LEFT) . '-01'; // Assuming day 01 for monthly data
+        // Add 'tanggal' to the validated array
+        $validated['tanggal'] = $tanggal;
+
+        // Remove 'bulan' and 'tahun' as they are not direct columns in the model
+        unset($validated['bulan'], $validated['tahun']);
+
+        // Check if data with the same date already exists
+        if (DataBeras::where('tanggal', $tanggal)->exists()) {
+            return redirect()->back()->with('error', 'Data dengan tanggal tersebut sudah ada.');
+        }
+
+        DataBeras::create($validated);
+
+        return redirect()->route('keloladataprediksi.index')->with('success', 'Data successfully added');
+    }
+
+
+    /**
+     * Update the specified DataBeras resource in storage.
+     */
+    /**
+     * Update the specified DataBeras resource in storage.
+     */
+    public function update_new(Request $request, $id)
+    {
+        $dataBeras = DataBeras::findOrFail($id);
+
+        $validated = $request->validate([
+            'bulan' => 'required|numeric|between:1,12',
+            'tahun' => 'required|numeric|digits:4',
+            'harga_beras_kualitas_bawah_i' => 'required|numeric|min:0',
+            'harga_beras_kualitas_bawah_ii' => 'required|numeric|min:0',
+            'harga_beras_kualitas_medium_i' => 'required|numeric|min:0',
+            'harga_beras_kualitas_medium_ii' => 'required|numeric|min:0',
+            'harga_beras_kualitas_super_i' => 'required|numeric|min:0',
+            'harga_beras_kualitas_super_ii' => 'required|numeric|min:0',
+            'inflasi_bi' => 'required|numeric',
+            'kurs_usd' => 'required|numeric|min:0',
+            'bbm_pertalite' => 'required|numeric|min:0',
+            'ump_sulut' => 'required|numeric|min:0',
+            'jumlah_penduduk' => 'required|numeric|min:0',
+            'pupuk_subsidi' => 'required|numeric|min:0',
+        ], [
+            'bulan.between' => 'Bulan harus antara 1 dan 12.',
+            'tahun.digits' => 'Tahun harus terdiri dari 4 digit.',
+        ]);
+
+        // Combine bulan and tahun into tanggal
+        $tanggal = $validated['tahun'] . '-' . str_pad($validated['bulan'], 2, '0', STR_PAD_LEFT) . '-01'; // Assuming day 01 for monthly data
+        // Add 'tanggal' to the validated array
+        $validated['tanggal'] = $tanggal;
+
+        // Remove 'bulan' and 'tahun' as they are not direct columns in the model
+        unset($validated['bulan'], $validated['tahun']);
+
+        // Check if data with the same date already exists, excluding the current record
+        if (DataBeras::where('tanggal', $tanggal)->where('id', '!=', $id)->exists()) {
+            return redirect()->back()->with('error', 'Data dengan tanggal tersebut sudah ada.');
+        }
+
+        $dataBeras->update($validated);
+
+        return redirect()->route('keloladataprediksi.index')->with('success', 'Data successfully updated');
+    }
+
+
+    /**
+     * Remove the specified DataBeras resource from storage.
+     */
+    public function destroy_new($id)
+    {
+        $dataBeras = DataBeras::findOrFail($id);
+        $dataBeras->delete();
+
+        return redirect()->route('keloladataprediksi.index')->with('success', 'Data successfully deleted');
+    }
+
+    /**
+     * Display data prediksi view.
+     */
+    public function data_prediksi(Request $request)
+    {
+        // Initialize query for DataBeras
+        $query = DataBeras::query();
+
+        // Apply search filters
+        if ($request->has('tahun') && !empty($request->tahun)) {
+            $query->whereYear('tanggal', $request->tahun);
+        }
+
+        if ($request->has('bulan') && !empty($request->bulan)) {
+            $query->whereMonth('tanggal', $request->bulan);
+        }
+
+        // Fetch paginated data (e.g., 10 records per page)
+        $dataBeras = $query->orderBy('tanggal', 'desc')->paginate(10);
+
+        return view('data_prediksi.data_prediksi', [
+            'dataPrediksis' => $dataBeras,
+        ]);
+    }
+
+    /**
      * Analyze data for linear regression prediction of rice prices.
      */
     public function analyze(Request $request)
