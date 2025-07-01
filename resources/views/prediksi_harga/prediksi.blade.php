@@ -13,8 +13,8 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-2"></i> Admin
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -34,7 +34,8 @@
                             <label for="bulan_mulai" class="form-label">Bulan Mulai</label>
                             <select class="form-select" name="bulan_mulai" id="bulan_mulai">
                                 @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan_mulai') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}"
+                                        {{ request('bulan_mulai') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                         {{ DateTime::createFromFormat('!m', $i)->format('F') }}
                                     </option>
                                 @endfor
@@ -44,7 +45,8 @@
                             <label for="bulan_akhir" class="form-label">Bulan Akhir</label>
                             <select class="form-select" name="bulan_akhir" id="bulan_akhir">
                                 @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan_akhir') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                    <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}"
+                                        {{ request('bulan_akhir') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
                                         {{ DateTime::createFromFormat('!m', $i)->format('F') }}
                                     </option>
                                 @endfor
@@ -54,13 +56,14 @@
                             <label for="tahun" class="form-label">Tahun</label>
                             <select class="form-select" name="tahun" id="tahun">
                                 @for ($year = date('Y'); $year >= 2000; $year--)
-                                    <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>
+                                        {{ $year }}</option>
                                 @endfor
                             </select>
                         </div>
                     </div>
                     <div class="row mt-4 justify-content-center">
-                        <div class="col-md-3 d-flex justify-content-around">
+                        <div class="col-md-3 d-flex flex-column gap-2">
                             <button type="submit" class="btn btn-success">Prediksi Harga</button>
                             <button type="submit" class="btn btn-success">Tampilkan Perhitungan</button>
                         </div>
@@ -83,18 +86,23 @@
         const prediksiChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], // Update labels dynamically based on range
-                datasets: [
-                    {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov",
+                    "Dec"
+                ], // Update labels dynamically based on range
+                datasets: [{
                         label: 'Harga Aktual',
-                        data: [12000, 12500, 13000, 12800, 13500, 14000, 14500, 15000, 15500, 16000, 16500, 17000], // Replace with actual data
+                        data: [12000, 12500, 13000, 12800, 13500, 14000, 14500, 15000, 15500, 16000, 16500,
+                            17000
+                        ], // Replace with actual data
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
                     },
                     {
                         label: 'Harga Prediksi',
-                        data: [11500, 12000, 12500, 12300, 13000, 13500, 13800, 14300, 14800, 15200, 15800, 16200], // Replace with predicted data
+                        data: [11500, 12000, 12500, 12300, 13000, 13500, 13800, 14300, 14800, 15200, 15800,
+                            16200
+                        ], // Replace with predicted data
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
                         fill: false
