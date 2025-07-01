@@ -21,9 +21,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            DataPrediksiSeeder::class
-        ]);
-        $this->call([
             DataBerasSeeder::class
         ]);
         $this->call([
