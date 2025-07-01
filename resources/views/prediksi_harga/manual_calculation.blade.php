@@ -40,6 +40,7 @@
                 <p><strong>Persamaan Regresi:</strong> {{ $regression_equation }}</p>
                 <p><strong>MAE:</strong> {{ $mae }}</p>
                 <p><strong>RMSE:</strong> {{ $rmse }}</p>
+                <p><strong>MAPE:</strong> {{ $mape }}%</p>
 
                 <!-- Step 1: Data Table -->
                 <h5>1. Data</h5>

@@ -65,6 +65,7 @@
                                 </ul>
                                 <p><strong>MAE:</strong> {{ $data['mae'] }}</p>
                                 <p><strong>RMSE:</strong> {{ $data['rmse'] }}</p>
+                                <p><strong>MAPE:</strong> {{ $data['mape'] }}%</p>
                             </div>
                         @endforeach
                     </div>
