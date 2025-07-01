@@ -235,7 +235,7 @@ class DataBerasController extends Controller
 
         DataBeras::create($validated);
 
-        return redirect()->route('keloladataprediksi.index')->with('success', 'Data successfully added');
+        return redirect()->route('keloladataprediksi.index')->with('success', 'Data berhasil ditambahkan.');
     }
 
 
@@ -284,7 +284,7 @@ class DataBerasController extends Controller
 
         $dataBeras->update($validated);
 
-        return redirect()->route('keloladataprediksi.index')->with('success', 'Data successfully updated');
+        return redirect()->route('keloladataprediksi.index')->with('success', 'Data berhasil diubah');
     }
 
 
@@ -296,7 +296,7 @@ class DataBerasController extends Controller
         $dataBeras = DataBeras::findOrFail($id);
         $dataBeras->delete();
 
-        return redirect()->route('keloladataprediksi.index')->with('success', 'Data successfully deleted');
+        return redirect()->route('keloladataprediksi.index')->with('success', 'Data berhasil dihapus');
     }
 
     /**

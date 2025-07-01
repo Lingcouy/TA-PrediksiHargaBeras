@@ -6,7 +6,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
             <div class="d-flex align-items-center">
                 <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
-                <h2 class="fs-2 m-0">Manual Calculation (Data Uji) - Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</h2>
+                <h2 class="fs-2 m-0">Perhitungan Manual (Data Uji) - Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</h2>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,13 +30,13 @@
         <div class="container-fluid px-4">
             <div class="row my-3">
                 <a href="{{ route('data-beras.analyze') }}" class="btn btn-secondary mb-3">Back to Analyze</a>
-                <h4>Manual Calculation for Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }} (Data Uji)</h4>
+                <h4>Perhitungan Manual untuk Prediksi Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }} (Data Uji)</h4>
                 <p><strong>Persamaan Regresi:</strong> {{ $regression_equation }}</p>
                 <p><strong>MAE:</strong> {{ $mae }}</p>
                 <p><strong>RMSE:</strong> {{ $rmse }}</p>
 
                 <!-- Step 1: Training Data Table -->
-                <h5>1. Training Data</h5>
+                <h5>1. Data Latih</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -93,7 +93,7 @@
                 </div>
 
                 <!-- Step 2: Pairwise Products and Squares -->
-                <h5>2. Pairwise Products and Squares (Training Data)</h5>
+                <h5>2. Produk Berpasangan dan Kuadrat (Data Latih)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -193,7 +193,7 @@
                 </div>
 
                 <!-- Matrix H -->
-                <h5>3. Matriks H (Training Data)</h5>
+                <h5>3. Matriks H (Data Latih)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -214,7 +214,7 @@
                 </div>
 
                 <!-- Step 4: Matrices A through A7 -->
-                <h5>4. Matrices</h5>
+                <h5>4. Matriks A</h5>
                 @foreach(['A' => $A_matrix] + array_combine(range(1, 7), $A_matrices) as $matrix_name => $matrix)
                     @if($matrix_name === 'A')
                         <h6>Matriks {{ $matrix_name }}</h6>
@@ -250,7 +250,7 @@
                 @endforeach
 
                 <!-- Step 5: Determinants -->
-                <h5>5. Determinants</h5>
+                <h5>5. Determinan</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -275,7 +275,7 @@
                 </div>
 
                 <!-- Step 6: Coefficients -->
-                <h5>6. Coefficients</h5>
+                <h5>6. Koefisien</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -296,7 +296,7 @@
                 </div>
 
                 <!-- Step 7: Predicted Prices (Testing Data) -->
-                <h5>7. Y PREDICTED (Testing Data)</h5>
+                <h5>7. Prediksi Harga (Data Uji)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -304,7 +304,7 @@
                             <th>NO</th>
                             <th>TANGGAL</th>
                             <th>Y PREDICTED</th>
-                            <th>ACTUAL Y</th>
+                            <th>Harga Aktual</th>
                         </tr>
                         </thead>
                         <tbody>
