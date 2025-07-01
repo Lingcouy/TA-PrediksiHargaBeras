@@ -18,17 +18,29 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-2"></i>John Doe
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Logout</a></li>
-                        </ul>
-                    </li>
+                    @auth
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i>Admin
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ route('account.settings') }}">⚙️ Akun</a></li>                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">Keluar</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    @endauth
+
+                    @guest
+                        <!-- Kosongkan untuk guest / user belum login -->
+                    @endguest
                 </ul>
             </div>
+
         </nav>
 
         <div class="container-fluid px-4">
@@ -97,7 +109,7 @@
             </div>
 
             <div class="row my-5">
-                <h3 class="fs-4 mb-3">Recent Rice Prices</h3>
+                <h3 class="fs-4 mb-3">Daftar Harga Beras</h3>
                 <div class="col">
                     <table class="table bg-white rounded shadow-sm table-hover">
                         <thead>

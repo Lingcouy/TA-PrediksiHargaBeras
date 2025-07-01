@@ -11,10 +11,26 @@
                 class="fas fa-chart-area me-2"></i>Prediksi Harga (Data Uji)</a>
         <a href="{{ route('data-prediksi') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('data-prediksi') ? 'active' : '' }}" ><i
             class="fas fa-table me-2"></i>Data Prediksi</a>
+        @auth
         <a href="{{ route('keloladataprediksi.index') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('keloladataprediksi') ? 'active' : '' }}"><i
             class="fas fa-user-edit  me-2"></i>Kelola Data Prediksi</a>
-        <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i
-            class="fas fa-power-off me-2"></i>Logout</a>
+        @endauth
+{{--        <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i--}}
+{{--            class="fas fa-power-off me-2"></i>Logout</a>--}}
+
+        @auth
+            <form action="{{ route('logout') }}" method="POST" class="list-group-item bg-transparent text-danger fw-bold border-0 p-0 m-0">
+                @csrf
+                <button type="submit" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold">
+                    <i class="fas fa-power-off me-2"></i>Logout
+                </button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" class="list-group-item list-group-item-action bg-transparent text-primary fw-bold">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </a>
+        @endauth
+
     </div>
 </div>
 <!-- /#sidebar-wrapper -->
