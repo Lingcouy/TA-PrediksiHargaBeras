@@ -8,7 +8,7 @@
                 <h2 class="fs-2 m-0">Prediksi Harga</h2>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -17,11 +17,12 @@
                     @auth
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user me-2"></i>Admin
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ route('account.settings') }}">⚙️ Akun</a></li>                                <li>
+                                <li><a class="dropdown-item" href="{{ route('account.settings') }}">⚙️ Akun</a></li>
+                                <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="dropdown-item">Keluar</button>
@@ -37,19 +38,20 @@
         <div class="container-fluid px-4">
             <div class="row my-3">
                 <!-- Error Message -->
-                @if(isset($error))
+                @if (isset($error))
                     <div class="mt-5 alert alert-danger">
                         {{ $error }}
                     </div>
                 @endif
 
                 <!-- Results from Coefficient Calculation -->
-                @if(isset($results) && !isset($error))
+                @if (isset($results) && !isset($error))
                     <div class="mt-5">
                         <h4>Hasil Perhitungan Koefisien Regresi Linier</h4>
-                        @foreach($results as $category => $data)
+                        @foreach ($results as $category => $data)
                             <div class="mb-4">
-                                <a href="{{ route('manual.calculation', ['category' => $category]) }}" class="btn btn-primary" target="_blank">
+                                <a href="{{ route('manual.calculation', ['category' => $category]) }}"
+                                    class="btn btn-primary" target="_blank">
                                     Harga Beras Kualitas {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}
                                 </a>
                                 <p><strong>Persamaan Regresi:</strong> {{ $data['regression_equation'] }}</p>
@@ -65,6 +67,7 @@
                                 </ul>
                                 <p><strong>MAE:</strong> {{ $data['mae'] }}</p>
                                 <p><strong>RMSE:</strong> {{ $data['rmse'] }}</p>
+                                <p><strong>MAPE:</strong> {{ $data['mape'] }}%</p>
                             </div>
                         @endforeach
                     </div>
@@ -75,8 +78,9 @@
                         <div class="mb-3">
                             <label for="priceCategory" class="form-label">Pilih Kategori Harga:</label>
                             <select id="priceCategory" class="form-select" onchange="updateChart()">
-                                @foreach($results as $category => $data)
-                                    <option value="{{ $category }}">{{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</option>
+                                @foreach ($results as $category => $data)
+                                    <option value="{{ $category }}">
+                                        {{ str_replace('HARGA_BERAS_KUALITAS_', '', $category) }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -93,7 +97,7 @@
         </div>
     </div>
 
-    @if(isset($results) && !isset($error))
+    @if (isset($results) && !isset($error))
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             // Pass PHP data to JavaScript
@@ -133,8 +137,7 @@
                     type: 'line',
                     data: {
                         labels: data.dates,
-                        datasets: [
-                            {
+                        datasets: [{
                                 label: 'Harga Aktual',
                                 data: actualPrices,
                                 borderColor: 'rgba(75, 192, 192, 1)',

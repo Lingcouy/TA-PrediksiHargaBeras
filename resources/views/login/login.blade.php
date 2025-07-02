@@ -31,7 +31,7 @@
     <div class="forms">
         <div class="form-content">
             <div class="login-form">
-                <div class="title">Login</div>
+                <div class="title">Masuk</div>
                 <form action="{{ route('login') }}" method="POST"> <!-- Perbaiki action -->
                     @csrf
                     <div class="input-boxes">

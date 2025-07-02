@@ -464,17 +464,24 @@ class DataBerasController extends Controller
             $predictedPrices = array_map(function($row) use ($b) {
                 return $this->matrixMultiply([$row], $b)[0][0];
             }, $X_test_with_const);
-
             // Calculate MAE
             $mae = array_sum(array_map(function($actual, $predicted) {
                     return abs($actual - $predicted);
                 }, $Y_test, $predictedPrices)) / (count($Y_test) ?: 1);
-
             // Calculate RMSE
             $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
                     return pow($actual - $predicted, 2);
                 }, $Y_test, $predictedPrices)) / (count($Y_test) ?: 1));
-
+            // Calculate MAPE
+            $mape = 0;
+            $mapeCount = 0;
+            foreach ($Y_test as $index => $actual) {
+                if ($actual != 0) {
+                    $mape += abs(($actual - $predictedPrices[$index]) / $actual);
+                    $mapeCount++;
+                }
+            }
+            $mape = ($mapeCount > 0) ? ($mape / $mapeCount) * 100 : 0;
             $results[$priceCategory] = [
                 'regression_equation' => $regressionEquation,
                 'coefficients' => array_map(function($coef) {
@@ -489,6 +496,7 @@ class DataBerasController extends Controller
                 'dates' => $testingDates,
                 'mae' => number_format($mae, 2),
                 'rmse' => number_format($rmse, 2),
+                'mape' => number_format($mape, 2), // Add MAPE here
                 'data' => $testingData,
             ];
         }
@@ -614,7 +622,6 @@ class DataBerasController extends Controller
             $predictedPrices = array_map(function($row) use ($b) {
                 return $this->matrixMultiply([$row], $b)[0][0];
             }, $X_with_const);
-
             // Calculate MAE and RMSE
             $actual = array_column($cleanedData, $priceCategory);
             $mae = array_sum(array_map(function($actual, $predicted) {
@@ -623,7 +630,16 @@ class DataBerasController extends Controller
             $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
                     return pow($actual - $predicted, 2);
                 }, $actual, $predictedPrices)) / (count($actual) ?: 1));
-
+            // Calculate MAPE
+            $mape = 0;
+            $mapeCount = 0;
+            foreach ($actual as $index => $actualValue) {
+                if ($actualValue != 0) {
+                    $mape += abs(($actualValue - $predictedPrices[$index]) / $actualValue);
+                    $mapeCount++;
+                }
+            }
+            $mape = ($mapeCount > 0) ? ($mape / $mapeCount) * 100 : 0;
             $results[$priceCategory] = [
                 'regression_equation' => $regressionEquation,
                 'coefficients' => array_map(function($coef) {
@@ -638,6 +654,7 @@ class DataBerasController extends Controller
                 'dates' => $dates,
                 'mae' => number_format($mae, 2),
                 'rmse' => number_format($rmse, 2),
+                'mape' => number_format($mape, 2), // Add MAPE here
                 'data' => $cleanedData,
             ];
         }
@@ -776,6 +793,7 @@ class DataBerasController extends Controller
                 'X4_2' => $row['UMP_SULUT'] * $row['UMP_SULUT'],
                 'X5_2' => $row['JUMLAH_PENDUDUK'] * $row['JUMLAH_PENDUDUK'],
                 'X6_2' => $row['PUPUK_SUBSIDI'] * $row['PUPUK_SUBSIDI'],
+
             ];
         }
 
@@ -841,6 +859,34 @@ class DataBerasController extends Controller
                 $b[4] * $row[3] + $b[5] * $row[4] + $b[6] * $row[5];
         }, $X);
 
+        // Calculate individual regression terms for each data point
+        $regressionTerms = [];
+        foreach ($X as $index => $row) {
+            $terms = [
+                'b0' => $b[0], // Intercept
+                'b1X1' => $b[1] * $row[0], // INFLASI_BI
+                'b2X2' => $b[2] * $row[1], // KURS_USD
+                'b3X3' => $b[3] * $row[2], // BBM_PERTALITE
+                'b4X4' => $b[4] * $row[3], // UMP_SULUT
+                'b5X5' => $b[5] * $row[4], // JUMLAH_PENDUDUK
+                'b6X6' => $b[6] * $row[5], // PUPUK_SUBSIDI
+            ];
+            $regressionTerms[] = $terms;
+        }
+
+        // Format regression terms for display
+        $regressionTermsFormatted = array_map(function($terms) {
+            return [
+                'b0' => number_format($terms['b0'], 5),
+                'b1X1' => number_format($terms['b1X1'], 5),
+                'b2X2' => number_format($terms['b2X2'], 5),
+                'b3X3' => number_format($terms['b3X3'], 5),
+                'b4X4' => number_format($terms['b4X4'], 5),
+                'b5X5' => number_format($terms['b5X5'], 5),
+                'b6X6' => number_format($terms['b6X6'], 5),
+            ];
+        }, $regressionTerms);
+
         // Calculate MAE and RMSE
         $actual = array_column($cleanedData, $category);
         $mae = array_sum(array_map(function($actual, $predicted) {
@@ -849,6 +895,17 @@ class DataBerasController extends Controller
         $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
                 return pow($actual - $predicted, 2);
             }, $actual, $predictedPrices)) / (count($actual) ?: 1));
+
+        // Calculate MAPE
+        $mape = 0;
+        $mapeCount = 0;
+        foreach ($actual as $index => $actualValue) {
+            if ($actualValue != 0) {
+                $mape += abs(($actualValue - $predictedPrices[$index]) / $actualValue);
+                $mapeCount++;
+            }
+        }
+        $mape = ($mapeCount > 0) ? ($mape / $mapeCount) * 100 : 0;
 
         // Format data for view
         $dataTable = array_map(function($row, $index) use ($category, $dates) {
@@ -916,8 +973,10 @@ class DataBerasController extends Controller
             'predicted_prices' => $predictedPricesFormatted,
             'mae' => number_format($mae, 2),
             'rmse' => number_format($rmse, 2),
+            'mape' => number_format($mape, 2),
             'data_sums' => $data_sums_formatted,
             'matrix_h' => $matrix_h_formatted,
+            'regression_terms' => $regressionTermsFormatted,
         ]);
     }
 
@@ -1147,6 +1206,34 @@ class DataBerasController extends Controller
                 $b[4] * $row[3] + $b[5] * $row[4] + $b[6] * $row[5];
         }, $X_test);
 
+       // Calculate individual regression terms for each data point
+        $regressionTerms = [];
+        foreach ($X_test as $index => $row) {
+            $terms = [
+                'b0' => $b[0], // Intercept
+                'b1X1' => $b[1] * $row[0], // INFLASI_BI
+                'b2X2' => $b[2] * $row[1], // KURS_USD
+                'b3X3' => $b[3] * $row[2], // BBM_PERTALITE
+                'b4X4' => $b[4] * $row[3], // UMP_SULUT
+                'b5X5' => $b[5] * $row[4], // JUMLAH_PENDUDUK
+                'b6X6' => $b[6] * $row[5], // PUPUK_SUBSIDI
+            ];
+            $regressionTerms[] = $terms;
+        }
+
+        // Format regression terms for display
+        $regressionTermsFormatted = array_map(function($terms) {
+            return [
+                'b0' => number_format($terms['b0'], 5),
+                'b1X1' => number_format($terms['b1X1'], 5),
+                'b2X2' => number_format($terms['b2X2'], 5),
+                'b3X3' => number_format($terms['b3X3'], 5),
+                'b4X4' => number_format($terms['b4X4'], 5),
+                'b5X5' => number_format($terms['b5X5'], 5),
+                'b6X6' => number_format($terms['b6X6'], 5),
+            ];
+        }, $regressionTerms);
+
         // Calculate MAE and RMSE for testing data
         $mae = array_sum(array_map(function($actual, $predicted) {
                 return abs($actual - $predicted);
@@ -1154,6 +1241,17 @@ class DataBerasController extends Controller
         $rmse = sqrt(array_sum(array_map(function($actual, $predicted) {
                 return pow($actual - $predicted, 2);
             }, $Y_test, $predictedPrices)) / (count($Y_test) ?: 1));
+
+        // Calculate MAPE
+        $mape = 0;
+        $mapeCount = 0;
+        foreach ($Y_test as $index => $actual) {
+            if ($actual != 0) {
+                $mape += abs(($actual - $predictedPrices[$index]) / $actual);
+                $mapeCount++;
+            }
+        }
+        $mape = ($mapeCount > 0) ? ($mape / $mapeCount) * 100 : 0;
 
         // Format training data for view
         $dataTable = array_map(function($row, $index) use ($category) {
@@ -1232,8 +1330,10 @@ class DataBerasController extends Controller
             'predicted_prices' => $predictedPricesFormatted,
             'mae' => number_format($mae, 2),
             'rmse' => number_format($rmse, 2),
+            'mape' => number_format($mape, 2), // Add MAPE here
             'data_sums' => $data_sums_formatted,
             'matrix_h' => $matrix_h_formatted,
+            'regression_terms' => $regressionTermsFormatted,
         ]);
     }
 
