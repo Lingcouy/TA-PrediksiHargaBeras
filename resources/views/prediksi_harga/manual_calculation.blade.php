@@ -360,6 +360,7 @@
                 </div>
                 <div>
                 </div>
+                <!-- Step 8: Comparison of Actual and Predicted Prices with Relative Error -->
                 <h5 class="mt-3">8. Perbandingan Harga Aktual dan Prediksi</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
@@ -372,6 +373,7 @@
                             <th>Y RESIDUAL (𝑦ᵢ − ŷᵢ)</th>
                             <th>|𝑦ᵢ − ŷᵢ|</th>
                             <th>(𝑦ᵢ − ŷᵢ)^2</th>
+                            <th>|(𝑦ᵢ − ŷᵢ)/𝑦ᵢ|</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -388,12 +390,13 @@
                                 $residual = $actual_price - $predicted_price;
                                 $abs_diff = abs($residual);
                                 $sq_diff = pow($residual, 2);
+                                $relative_error = $actual_price != 0 ? abs($residual / $actual_price) : 0;
 
                                 $sum_abs_diff += $abs_diff;
                                 $sum_sq_diff += $sq_diff;
 
                                 if ($actual_price != 0) {
-                                    $sum_mape_numerator += $abs_diff / $actual_price;
+                                    $sum_mape_numerator += $relative_error;
                                     $mape_count++;
                                 }
                             @endphp
@@ -405,6 +408,7 @@
                                 <td>{{ number_format($residual, 2) }}</td>
                                 <td>{{ number_format($abs_diff, 2) }}</td>
                                 <td>{{ number_format($sq_diff, 2) }}</td>
+                                <td>{{ $actual_price != 0 ? number_format($relative_error, 4) : '-' }}</td>
                             </tr>
                         @endforeach
                         <tr>
@@ -412,23 +416,17 @@
                             <td></td>
                             <td><strong>{{ number_format($sum_abs_diff, 2) }}</strong></td>
                             <td><strong>{{ number_format($sum_sq_diff, 2) }}</strong></td>
+                            <td><strong>{{ number_format($sum_mape_numerator, 4) }}</strong></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
 
+                <!-- Step 9: Evaluation Metrics -->
                 <h5 class="mt-3">9. Perhitungan Metrik Evaluasi</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
-                        <tr>
-                            <th>Metrik</th>
-                            <th>Rumus</th>
-                            <th>Perhitungan</th>
-                            <th>Hasil</th>
-                        </tr>
-                        </thead>
-                        <tbody>
                         <tr>
                             <th>Metrik</th>
                             <th>Rumus</th>
