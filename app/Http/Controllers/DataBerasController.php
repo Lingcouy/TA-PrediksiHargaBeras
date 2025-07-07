@@ -1206,7 +1206,7 @@ class DataBerasController extends Controller
                 $b[4] * $row[3] + $b[5] * $row[4] + $b[6] * $row[5];
         }, $X_test);
 
-       // Calculate individual regression terms for each data point
+        // Calculate individual regression terms for each data point
         $regressionTerms = [];
         foreach ($X_test as $index => $row) {
             $terms = [
