@@ -392,7 +392,7 @@ class DataBerasController extends Controller
                 'error' => 'Insufficient training or testing data after cleaning.'
             ]);
         }
-
+        //SDASD
         // Define rice price categories
         $priceCategories = [
             'HARGA_BERAS_KUALITAS_BAWAH_I',
