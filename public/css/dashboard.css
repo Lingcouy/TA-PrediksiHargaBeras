@@ -1,99 +1,113 @@
 :root {
-  --main-bg-color: #009d63;
-  --main-text-color: #009d63;
-  --second-text-color: #bbbec5;
-  --second-bg-color: #c1efde;
+    --main-bg-color: #009d63;
+    --main-text-color: #009d63;
+    --second-text-color: #bbbec5;
+    --second-bg-color: #c1efde;
 }
 
 .primary-text {
-  color: var(--main-text-color);
+    color: var(--main-text-color);
 }
 
 .second-text {
-  color: var(--second-text-color);
+    color: var(--second-text-color);
 }
 
 .primary-bg {
-  background-color: var(--main-bg-color);
+    background-color: var(--main-bg-color);
 }
 
 .secondary-bg {
-  background-color: var(--second-bg-color);
+    background-color: var(--second-bg-color);
 }
 
 .rounded-full {
-  border-radius: 100%;
+    border-radius: 100%;
 }
 
 #wrapper {
-  overflow-x: hidden;
-  background-image: linear-gradient(
-    to right,
-    #ddf5e9,
-    #e7f8f4,
-    #e4f5f2,
-    #f0fffc,
-    #effaf9
-  );
+    overflow-x: hidden;
+    background-image: linear-gradient(
+        to right,
+        #ddf5e9,
+        #e7f8f4,
+        #e4f5f2,
+        #f0fffc,
+        #effaf9
+    );
+    transition: all 0.25s ease;
 }
 
-#sidebar-wrapper{
-  background-color: #0F1B07;
-}
-
+/* Sidebar */
 #sidebar-wrapper {
-  min-height: 100vh;
-  margin-left: -15rem;
-  -webkit-transition: margin 0.25s ease-out;
-  -moz-transition: margin 0.25s ease-out;
-  -o-transition: margin 0.25s ease-out;
-  transition: margin 0.25s ease-out;
-}
-
-#sidebar-wrapper .sidebar-heading {
-  padding: 0.875rem 1.25rem;
-  font-size: 1.2rem;
-}
-
-#sidebar-wrapper .list-group {
-  width: 15rem;
-}
-
-#page-content-wrapper {
-  min-width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 15rem;
+    height: 100vh;
+    background-color: #0f1b07;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: left 0.25s ease;
 }
 
 #wrapper.toggled #sidebar-wrapper {
-  margin-left: 0;
+    left: -15rem;
 }
 
-#menu-toggle {
-  cursor: pointer;
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
 }
 
 .list-group-item {
-  border: none;
-  padding: 20px 30px;
+    border: none;
+    padding: 20px 30px;
 }
 
 .list-group-item.active {
-  background-color: transparent;
-  color: var(--main-text-color);
-  font-weight: bold;
-  border: none;
+    background-color: transparent;
+    color: var(--main-text-color);
+    font-weight: bold;
+    border: none;
+}
+
+/* Konten utama */
+#page-content-wrapper {
+    margin-left: 15rem;
+    transition: margin-left 0.25s ease;
+    padding: 20px;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    margin-left: 0;
+}
+
+/* Tombol toggle */
+#menu-toggle {
+    background: none;
+    border: none;
+    color: var(--main-text-color);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
 }
 
 @media (min-width: 768px) {
-  #sidebar-wrapper {
-    margin-left: 0;
-  }
+    #sidebar-wrapper {
+        left: 0;
+    }
 
-  #page-content-wrapper {
-    min-width: 0;
-    width: 100%;
-  }
+    #wrapper.toggled #sidebar-wrapper {
+        left: -15rem;
+    }
 
-  #wrapper.toggled #sidebar-wrapper {
-    margin-left: -15rem;
-  }
+    #page-content-wrapper {
+        width: 100%;
+    }
 }

@@ -6,13 +6,15 @@ use Illuminate\Support\Facades\Route;
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/', [LoginController::class, 'showLoginForm']);
 
+//Route::get('/', [LoginController::class, 'login']);
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Dashboard routes
-Route::get('/', [DataBerasController::class, 'dashboard'])->name('dashboard');
+//Route::get('/', [DataBerasController::class, 'dashboard'])->name('dashboard');
 Route::get('/dashboard', [DataBerasController::class, 'dashboard'])->name('dashboard');
 
 // Data prediksi routes

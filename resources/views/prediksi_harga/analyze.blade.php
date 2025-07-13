@@ -46,7 +46,7 @@
 
                 <!-- Results from Coefficient Calculation -->
                 @if (isset($results) && !isset($error))
-                    <div class="mt-5">
+                    <div class="mt-2">
                         <h4>Hasil Perhitungan Koefisien Regresi Linier</h4>
                         @foreach ($results as $category => $data)
                             <div class="mb-4">

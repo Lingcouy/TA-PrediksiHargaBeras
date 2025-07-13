@@ -363,7 +363,7 @@
                 <!-- Step 8: Comparison of Actual and Predicted Prices with Relative Error -->
                 <h5 class="mt-3">8. Perbandingan Harga Aktual dan Prediksi</h5>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped" id="comparisonTable">
                         <thead>
                         <tr>
                             <th>NO</th>
@@ -420,6 +420,8 @@
                         </tr>
                         </tbody>
                     </table>
+                    <button onclick="exportComparisonTableToExcel()" class="btn btn-success mt-3">Export Tabel Perbandingan ke Excel</button> {{-- Added button here --}}
+
                 </div>
 
                 <!-- Step 9: Evaluation Metrics -->
@@ -459,4 +461,43 @@
             </div>
         </div>
     </div>
+
+    {{-- Include XLSX library --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        function exportComparisonTableToExcel() {
+            // Get the table element by its ID
+            const table = document.getElementById('comparisonTable');
+
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+
+            // Convert table data to worksheet format
+            const ws = XLSX.utils.table_to_sheet(table, {
+                raw: true,
+                display: true
+            });
+
+            // Customize column widths (optional, adjust as needed)
+            const columnWidths = [
+                { wch: 5 },  // NO
+                { wch: 15 }, // TANGGAL
+                { wch: 15 }, // Y AKTUAL
+                { wch: 15 }, // Y PREDICTED
+                { wch: 20 }, // Y RESIDUAL
+                { wch: 15 }, // |yᵢ − ŷᵢ|
+                { wch: 15 }, // (yᵢ − ŷᵢ)^2
+                { wch: 15 }  // |(yᵢ − ŷᵢ)/yᵢ|
+            ];
+            ws['!cols'] = columnWidths;
+
+            // Add the worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Comparison Data');
+
+            // Generate and download the Excel file
+            const currentDate = new Date().toISOString().slice(0,10);
+            XLSX.writeFile(wb, `rice_price_comparison_${currentDate}.xlsx`);
+        }
+    </script>
 @endsection

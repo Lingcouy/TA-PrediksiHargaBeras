@@ -141,7 +141,7 @@ class DataBerasController extends Controller
         $lowestPrice = !empty($prices) ? min($prices) : 0;
 
         // Fetch recent data for the table (last 12 records)
-        $recentData = DataBeras::orderBy('tanggal', 'desc')->get();
+        $recentData = DataBeras::orderBy('tanggal', 'desc')->paginate(10);
 
         return view('dashboard', [
             'latest' => $latestData,
@@ -216,6 +216,7 @@ class DataBerasController extends Controller
             'jumlah_penduduk' => 'required|numeric|min:0',
             'pupuk_subsidi' => 'required|numeric|min:0',
         ], [
+            'required' => 'Kolom :attribute perlu diisi.',
             'bulan.between' => 'Bulan harus antara 1 dan 12.',
             'tahun.digits' => 'Tahun harus terdiri dari 4 digit.',
         ]);
@@ -1336,6 +1337,8 @@ class DataBerasController extends Controller
             'regression_terms' => $regressionTermsFormatted,
         ]);
     }
+
+
 
     /**
      * Matrix multiplication.

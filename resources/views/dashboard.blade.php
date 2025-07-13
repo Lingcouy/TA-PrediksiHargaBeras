@@ -10,9 +10,8 @@
                 <h2 class="fs-2 m-0">Dashboard</h2>
             </div>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -21,11 +20,12 @@
                     @auth
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user me-2"></i>Admin
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ route('account.settings') }}">⚙️ Akun</a></li>                                <li>
+                                <li><a class="dropdown-item" href="{{ route('account.settings') }}">⚙️ Akun</a></li>
+                                <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="dropdown-item">Keluar</button>
@@ -52,7 +52,8 @@
                             <label for="rice_type" class="input-group-text">Pilih Tipe Beras</label>
                             <select name="rice_type" id="rice_type" class="form-select" onchange="this.form.submit()">
                                 @foreach ($price_fields as $key => $label)
-                                    <option value="{{ $key }}" {{ $selected_type == $key ? 'selected' : '' }}>{{ $label }}</option>
+                                    <option value="{{ $key }}" {{ $selected_type == $key ? 'selected' : '' }}>
+                                        {{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -65,7 +66,7 @@
                     <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
                             <h3 class="fs-2">
-                                @if(isset($latest) && $latest)
+                                @if (isset($latest) && $latest)
                                     {{ number_format($latest->$selected_type, 2) }}
                                 @else
                                     N/A
@@ -113,38 +114,42 @@
                 <div class="col">
                     <table class="table bg-white rounded shadow-sm table-hover">
                         <thead>
-                        <tr>
-                            <th scope="col" width="50">#</th>
-                            <th scope="col">Tanggal (Bulan-Tahun)</th>
-                            <th scope="col">Bawah I</th>
-                            <th scope="col">Bawah II</th>
-                            <th scope="col">Medium I</th>
-                            <th scope="col">Medium II</th>
-                            <th scope="col">Super I</th>
-                            <th scope="col">Super II</th>
-                        </tr>
+                            <tr>
+                                <th scope="col" width="50">#</th>
+                                <th scope="col">Tanggal (Bulan-Tahun)</th>
+                                <th scope="col">Bawah I</th>
+                                <th scope="col">Bawah II</th>
+                                <th scope="col">Medium I</th>
+                                <th scope="col">Medium II</th>
+                                <th scope="col">Super I</th>
+                                <th scope="col">Super II</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        @if(isset($recent_data) && $recent_data->count() > 0)
-                            @foreach ($recent_data as $index => $data)
+                            @php
+                                $nomor = 1 + ($recent_data->currentPage() - 1) * $recent_data->perPage();
+                            @endphp
+                            @if (isset($recent_data) && $recent_data->count() > 0)
+                                @foreach ($recent_data as $index => $data)
+                                    <tr>
+                                        <th scope="row">{{ $index + 1 }}</th>
+                                        <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('F-Y') }}</td>
+                                        <td>{{ number_format($data->harga_beras_kualitas_bawah_i, 2) }}</td>
+                                        <td>{{ number_format($data->harga_beras_kualitas_bawah_ii, 2) }}</td>
+                                        <td>{{ number_format($data->harga_beras_kualitas_medium_i, 2) }}</td>
+                                        <td>{{ number_format($data->harga_beras_kualitas_medium_ii, 2) }}</td>
+                                        <td>{{ number_format($data->harga_beras_kualitas_super_i, 2) }}</td>
+                                        <td>{{ number_format($data->harga_beras_kualitas_super_ii, 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            @else
                                 <tr>
-                                    <th scope="row">{{ $index + 1 }}</th>
-                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('F-Y') }}</td>
-                                    <td>{{ number_format($data->harga_beras_kualitas_bawah_i, 2) }}</td>
-                                    <td>{{ number_format($data->harga_beras_kualitas_bawah_ii, 2) }}</td>
-                                    <td>{{ number_format($data->harga_beras_kualitas_medium_i, 2) }}</td>
-                                    <td>{{ number_format($data->harga_beras_kualitas_medium_ii, 2) }}</td>
-                                    <td>{{ number_format($data->harga_beras_kualitas_super_i, 2) }}</td>
-                                    <td>{{ number_format($data->harga_beras_kualitas_super_ii, 2) }}</td>
+                                    <td colspan="8" class="text-center">No data available</td>
                                 </tr>
-                            @endforeach
-                        @else
-                            <tr>
-                                <td colspan="8" class="text-center">No data available</td>
-                            </tr>
-                        @endif
+                            @endif
                         </tbody>
                     </table>
+                    {{ $recent_data->links() }}
                 </div>
             </div>
         </div>
