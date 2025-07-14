@@ -6,7 +6,7 @@
         <div class="list-group list-group-flush my-3">
             <a href="{{ route('dashboard') }}"
                 class="list-group-item list-group-item-action bg-transparent second-text {{ Request::is('dashboard') ? 'active' : '' }}"><i
-                    class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                    class="fas fa-tachometer-alt me-2"></i>Beranda</a>
             <a href="{{ route('prediksi-harga') }}"
                 class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('prediksi-harga', 'manual-calculation/*', 'calculate-coefficients') ? 'active' : '' }}"><i
                     class="fas fa-chart-line me-2"></i>Prediksi Harga</a>

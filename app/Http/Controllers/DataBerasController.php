@@ -145,9 +145,9 @@ class DataBerasController extends Controller
 
         return view('dashboard', [
             'latest' => $latestData,
-            'average_price' => number_format($averagePrice, 2),
-            'highest_price' => number_format($highestPrice, 2),
-            'lowest_price' => number_format($lowestPrice, 2),
+            'average_price' => $averagePrice,
+            'highest_price' => $highestPrice, 
+            'lowest_price' => $lowestPrice, 
             'recent_data' => $recentData,
             'price_fields' => $priceFields,
             'selected_type' => $selectedType,

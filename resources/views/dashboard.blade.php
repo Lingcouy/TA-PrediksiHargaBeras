@@ -7,7 +7,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
             <div class="d-flex align-items-center">
                 <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
-                <h2 class="fs-2 m-0">Dashboard</h2>
+                <h2 class="fs-2 m-0">BERANDA</h2>
             </div>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -67,7 +67,7 @@
                         <div>
                             <h3 class="fs-2">
                                 @if (isset($latest) && $latest)
-                                    {{ number_format($latest->$selected_type, 2) }}
+                                    {{ number_format($latest->$selected_type, 2, ',', '.') }}
                                 @else
                                     N/A
                                 @endif
@@ -81,7 +81,9 @@
                 <div class="col-md-3">
                     <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
-                            <h3 class="fs-2">{{ isset($average_price) ? $average_price : 'N/A' }}</h3>
+                            <h3 class="fs-2">
+                                {{ isset($average_price) ? number_format($average_price, 2, ',', '.') : 'N/A' }}
+                            </h3>
                             <p class="fs-5">Rata-rata Harga ({{ $price_fields[$selected_type] }})</p>
                         </div>
                         <i class="fas fa-hand-holding-usd fs-1 primary-text border rounded-full secondary-bg p-3"></i>
@@ -91,7 +93,9 @@
                 <div class="col-md-3">
                     <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
-                            <h3 class="fs-2">{{ isset($highest_price) ? $highest_price : 'N/A' }}</h3>
+                            <h3 class="fs-2">
+                                {{ isset($highest_price) ? number_format($highest_price, 2, ',', '.') : 'N/A' }}
+                            </h3>
                             <p class="fs-5">Harga Tertinggi ({{ $price_fields[$selected_type] }})</p>
                         </div>
                         <i class="fas fa-arrow-up fs-1 primary-text border rounded-full secondary-bg p-3"></i>
@@ -101,13 +105,16 @@
                 <div class="col-md-3">
                     <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                         <div>
-                            <h3 class="fs-2">{{ isset($lowest_price) ? $lowest_price : 'N/A' }}</h3>
+                            <h3 class="fs-2">
+                                {{ isset($lowest_price) ? number_format($lowest_price, 2, ',', '.') : 'N/A' }}
+                            </h3>
                             <p class="fs-5">Harga Terendah ({{ $price_fields[$selected_type] }})</p>
                         </div>
                         <i class="fas fa-arrow-down fs-1 primary-text border rounded-full secondary-bg p-3"></i>
                     </div>
                 </div>
             </div>
+
 
             <div class="row my-5">
                 <h3 class="fs-4 mb-3">Daftar Harga Beras</h3>
