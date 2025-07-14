@@ -80,7 +80,10 @@
                         <div class="col-md-4 mb-4">
                             <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                                 <div>
-                                    <h3 class="fs-2">{{ number_format((float)$result['future_predictions'][0]['predicted_price'], 2) }}</h3>                                    <p class="fs-5">{{ str_replace('_', ' ', $category) }} (Next Month)</p>
+
+                                    <h3 class="fs-2">{{ number_format((float)str_replace(',', '', $result['future_predictions'][0]['predicted_price']), 2, '.', ',') }}
+                                    </h3>
+                                    <p class="fs-5">{{ str_replace('_', ' ', $category) }} (Next Month)</p>
                                 </div>
                                 <i class="fas fa-chart-line fs-1 primary-text border rounded-full secondary-bg p-3"></i>
                             </div>
@@ -113,7 +116,7 @@
                                     <td>{{ \Carbon\Carbon::parse($prediction['tanggal'])->format('F-Y') }}</td>
                                     @foreach ($results as $category => $result)
                                         @if (!isset($result['error']))
-                                            <td>{{ number_format((float)$result['future_predictions'][$index]['predicted_price'], 2) }}</td>
+                                            <td>{{ number_format((float)str_replace(',', '', $result['future_predictions'][$index]['predicted_price']), 2, '.', ',') }}</td>
                                         @endif
                                     @endforeach
                                 </tr>
@@ -158,7 +161,13 @@
                                 @if (!isset($result['error']))
                             {
                                 label: '{{ str_replace('_', ' ', $category) }}',
-                                data: @json(array_column($result['future_predictions'], 'predicted_price')),
+                                    @php
+                                        $dataPoints = array_map(function ($price) {
+                                            return (float) str_replace(',', '', $price['predicted_price']);
+                                        }, $result['future_predictions']);
+                                    @endphp
+
+                                    data: @json($dataPoints),
                                 borderColor: '{{ $loop->index == 0 ? '#007bff' : ($loop->index == 1 ? '#28a745' : ($loop->index == 2 ? '#dc3545' : ($loop->index == 3 ? '#ffc107' : ($loop->index == 4 ? '#17a2b8' : '#6f42c1')))) }}',
                                 backgroundColor: '{{ $loop->index == 0 ? 'rgba(0, 123, 255, 0.1)' : ($loop->index == 1 ? 'rgba(40, 167, 69, 0.1)' : ($loop->index == 2 ? 'rgba(220, 53, 69, 0.1)' : ($loop->index == 3 ? 'rgba(255, 193, 7, 0.1)' : ($loop->index == 4 ? 'rgba(23, 162, 184, 0.1)' : 'rgba(111, 66, 193, 0.1)')))) }}',
                                 fill: false

@@ -1543,12 +1543,17 @@ class DataBerasController extends Controller
     /**
      * Forecast independent variables for future months
      */
+    // In DataBerasController.php
+
     private function forecastIndependentVariables($monthsAhead)
     {
         $historicalData = DataBeras::orderBy('tanggal')->get();
         if ($historicalData->count() < 12) {
             throw new \Exception("Insufficient historical data for forecasting. At least 12 records required.");
         }
+
+        // Get the last date from the historical data
+        $lastDateInDb = $historicalData->last()->tanggal;
 
         $variables = [
             'inflasi_bi',
@@ -1569,7 +1574,7 @@ class DataBerasController extends Controller
                 // Fallback to rolling average if ARIMA fails
                 $avg = array_sum($data) / count($data);
                 $forecastedData[$variable] = array_fill_keys(
-                    array_map(fn($i) => Carbon::now()->addMonths($i)->startOfMonth()->format('Y-m-d'), range(1, $monthsAhead)),
+                    array_map(fn($i) => Carbon::parse($lastDateInDb)->addMonths($i)->startOfMonth()->format('Y-m-d'), range(1, $monthsAhead)),
                     $avg
                 );
             }
@@ -1578,9 +1583,11 @@ class DataBerasController extends Controller
         // Structure data for future months
         $futureData = [];
         for ($i = 1; $i <= $monthsAhead; $i++) {
-            $date = Carbon::now()->addMonths($i)->startOfMonth()->format('Y-m-d');
+            // Use the last date from the database as the base for adding months
+            $date = Carbon::parse($lastDateInDb)->addMonths($i)->startOfMonth()->format('Y-m-d');
             $row = ['tanggal' => $date];
             foreach ($variables as $variable) {
+                // Ensure the key exists, otherwise use a default or handle error
                 $row[$variable] = $forecastedData[$variable][$date] ?? array_values($forecastedData[$variable])[0];
             }
             $futureData[] = $row;
@@ -1588,6 +1595,7 @@ class DataBerasController extends Controller
 
         return $futureData;
     }
+
 
     /**
      * Predict future rice prices
@@ -1602,6 +1610,7 @@ class DataBerasController extends Controller
         // Step 1: Forecast independent variables
         try {
             $futureX = $this->forecastIndependentVariables($monthsAhead);
+            //dd($futureX);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -1677,6 +1686,7 @@ class DataBerasController extends Controller
                 $A = $this->matrixMultiply($this->transpose($X_with_const), $X_with_const);
                 $B = $this->matrixMultiply($this->transpose($X_with_const), $Y);
                 $b = $this->matrixMultiply($this->inverse($A), $B);
+                //dd($b);
             } catch (\Exception $e) {
                 $results[$category] = ['error' => 'Regression error: ' . $e->getMessage()];
                 continue;
@@ -1705,8 +1715,10 @@ class DataBerasController extends Controller
                 'coefficients' => array_map(fn($coef) => number_format($coef[0], 4), $b),
                 'future_predictions' => $futurePredictions,
             ];
+
         }
 
+        //dd($results);
         return view('prediksi_harga.future_predictions', [
             'results' => $results,
             'months_ahead' => $monthsAhead,
