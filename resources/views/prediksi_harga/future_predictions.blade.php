@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Future Price Predictions')
+@section('title', 'Prediksi Harga ke Selanjutnya')
 @section('container')
 
     <!-- Page Content -->
@@ -7,7 +7,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
             <div class="d-flex align-items-center">
                 <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle"></i>
-                <h2 class="fs-2 m-0">Future Price Predictions</h2>
+                <h2 class="fs-2 m-0">Prediksi Harga ke Selanjutnya</h2>
             </div>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -43,12 +43,13 @@
         </nav>
 
         <div class="container-fluid px-4">
-            <!-- Months Ahead Selection Form -->
+            {{-- Removed Months Ahead Selection Form --}}
+            {{--
             <div class="row mb-4">
                 <div class="col-md-4">
                     <form action="{{ route('data-beras.predictFuture') }}" method="GET">
                         <div class="input-group">
-                            <label for="months_ahead" class="input-group-text">Months Ahead</label>
+                            <label for="months_ahead" class="input-group-text">Bulan ke Selanjutnya</label>
                             <select name="months_ahead" id="months_ahead" class="form-select" onchange="this.form.submit()">
                                 @for ($i = 1; $i <= 12; $i++)
                                     <option value="{{ $i }}" {{ $months_ahead == $i ? 'selected' : '' }}>
@@ -60,6 +61,7 @@
                     </form>
                 </div>
             </div>
+            --}}
 
             <!-- Display Error if Any -->
             @if (isset($error))
@@ -70,7 +72,7 @@
 
             <!-- Forecasted Prices -->
             <div class="row my-5">
-                <h3 class="fs-4 mb-3">Forecasted Rice Prices ({{ $months_ahead }} {{ $months_ahead == 1 ? 'Month' : 'Months' }} Ahead)</h3>
+                <h3 class="fs-4 mb-3">Prediksi Harga (Bulan Selanjutnya)</h3> {{-- Changed text here --}}
                 @foreach ($results as $category => $result)
                     @if (isset($result['error']))
                         <div class="alert alert-warning">
@@ -82,7 +84,7 @@
                                 <div>
                                     <h3 class="fs-2">{{ number_format((float)str_replace(',', '', $result['future_predictions'][0]['predicted_price']), 2, '.', ',') }}
                                     </h3>
-                                    <p class="fs-5">{{ str_replace('_', ' ', $category) }} (Next Month)</p>
+                                    <p class="fs-5">{{ str_replace('_', ' ', $category) }} (Bulan Selanjutnya)</p>
                                 </div>
                                 <i class="fas fa-chart-line fs-1 primary-text border rounded-full secondary-bg p-3"></i>
                             </div>
@@ -93,13 +95,13 @@
 
             <!-- Predictions Table -->
             <div class="row my-5">
-                <h3 class="fs-4 mb-3">Prediction Details</h3>
+                <h3 class="fs-4 mb-3">Detail Prediksi</h3>
                 <div class="col">
                     <table class="table bg-white rounded shadow-sm table-hover">
                         <thead>
                         <tr>
                             <th scope="col" width="50">#</th>
-                            <th scope="col">Date</th>
+                            <th scope="col">Tanggal</th>
                             @foreach ($results as $category => $result)
                                 @if (!isset($result['error']))
                                     <th scope="col">{{ str_replace('_', ' ', $category) }}</th>
@@ -132,13 +134,13 @@
 
             <!-- New Section: Future Independent Variables -->
             <div class="row my-5">
-                <h3 class="fs-4 mb-3">Future Independent Variables ({{ $months_ahead }} {{ $months_ahead == 1 ? 'Month' : 'Months' }} Ahead)</h3>
+                <h3 class="fs-4 mb-3">Variabel Indipenden (Bulan Selanjutnya)</h3> {{-- Changed text here --}}
                 <div class="col">
                     @if (!empty($future_independent_variables))
                         <table class="table bg-white rounded shadow-sm table-hover">
                             <thead>
                             <tr>
-                                <th scope="col">Date</th>
+                                <th scope="col">Tanggal</th>
                                 <th scope="col">Inflasi BI</th>
                                 <th scope="col">Kurs USD</th>
                                 <th scope="col">BBM Pertalite</th>
@@ -162,19 +164,19 @@
                             </tbody>
                         </table>
                     @else
-                        <div class="alert alert-info">No future independent variables available.</div>
+                        <div class="alert alert-info">Tidak ada data variabel indipenden ditemukan.</div>
                     @endif
                 </div>
             </div>
 
             <!-- Coefficients Table -->
             <div class="row my-5">
-                <h3 class="fs-4 mb-3">Regression Coefficients</h3>
+                <h3 class="fs-4 mb-3">Koofisien Regresi</h3>
                 <div class="col">
                     <table class="table bg-white rounded shadow-sm table-hover">
                         <thead>
                         <tr>
-                            <th scope="col">Category</th>
+                            <th scope="col">Kategiru</th>
                             <th scope="col">Intercept (b0)</th>
                             <th scope="col">Inflasi BI (b1)</th>
                             <th scope="col">Kurs USD (b2)</th>
@@ -201,7 +203,7 @@
                         @endforeach
                         @if (empty(array_filter($results, fn($r) => !isset($r['error']))))
                             <tr>
-                                <td colspan="7" class="text-center">No coefficients available</td>
+                                <td colspan="7" class="text-center">Tidak ada koefisien ditemukan</td>
                             </tr>
                         @endif
                         </tbody>
@@ -209,68 +211,8 @@
                 </div>
             </div>
 
-            <!-- Chart -->
-            @if (!empty($results) && !isset($results[array_key_first($results)]['error']))
-                <div class="row my-5">
-                    <h3 class="fs-4 mb-3">Price Trends</h3>
-                    <div class="col">
-                        <div class="p-3 bg-white rounded shadow-sm">
-                            <canvas id="priceChart" width="800" height="400"></canvas>
-                        </div>
-                    </div>
-                </div>
-            @endif
+
         </div>
     </div>
     <!-- /#page-content-wrapper -->
-
-    @if (!empty($results) && !isset($results[array_key_first($results)]['error']))
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const ctx = document.getElementById('priceChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: @json(array_map(fn($date) => \Carbon\Carbon::parse($date)->format('F-Y'), array_column($results[array_key_first($results)]['future_predictions'], 'tanggal'))),
-                        datasets: [
-                                @foreach ($results as $category => $result)
-                                @if (!isset($result['error']))
-                            {
-                                label: '{{ str_replace('_', ' ', $category) }}',
-                                @php
-                                    $dataPoints = array_map(function ($price) {
-                                        return (float) str_replace(',', '', $price['predicted_price']);
-                                    }, $result['future_predictions']);
-                                @endphp
-                                data: @json($dataPoints),
-                                borderColor: '{{ $loop->index == 0 ? '#007bff' : ($loop->index == 1 ? '#28a745' : ($loop->index == 2 ? '#dc3545' : ($loop->index == 3 ? '#ffc107' : ($loop->index == 4 ? '#17a2b8' : '#6f42c1')))) }}',
-                                backgroundColor: '{{ $loop->index == 0 ? 'rgba(0, 123, 255, 0.1)' : ($loop->index == 1 ? 'rgba(40, 167, 69, 0.1)' : ($loop->index == 2 ? 'rgba(220, 53, 69, 0.1)' : ($loop->index == 3 ? 'rgba(255, 193, 7, 0.1)' : ($loop->index == 4 ? 'rgba(23, 162, 184, 0.1)' : 'rgba(111, 66, 193, 0.1)')))) }}',
-                                fill: false
-                            },
-                            @endif
-                            @endforeach
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                title: {
-                                    display: true,
-                                    text: 'Price (IDR)'
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Month'
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-    @endif
 @endsection

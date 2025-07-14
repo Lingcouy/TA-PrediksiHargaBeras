@@ -1613,10 +1613,7 @@ class DataBerasController extends Controller
      */
     public function predictFuturePrices(Request $request)
     {
-        $monthsAhead = $request->input('months_ahead', 3); // Default to 3 months
-        if ($monthsAhead < 1 || $monthsAhead > 12) {
-            return response()->json(['error' => 'Months ahead must be between 1 and 12'], 400);
-        }
+        $monthsAhead = 1; // Hardcode to 1 for the next month only
 
         // Step 1: Forecast independent variables
         try {
@@ -1700,6 +1697,7 @@ class DataBerasController extends Controller
 
                 // Calculate predicted price using the formula:
                 // Y_predicted = b0 + b1*X1 + b2*X2 + b3*X3 + b4*X4 + b5*X5 + b6*X6
+                // In LaTeX: \$Y_{predicted} = b_0 + b_1X_1 + b_2X_2 + b_3X_3 + b_4X_4 + b_5X_5 + b_6X_6\$
                 $predictedPrice = $b[0][0] +
                     $b[1][0] * $X_future[1] +
                     $b[2][0] * $X_future[2] +
@@ -1722,8 +1720,9 @@ class DataBerasController extends Controller
 
         return view('prediksi_harga.future_predictions', [
             'results' => $results,
-            'months_ahead' => $monthsAhead,
+            'months_ahead' => $monthsAhead, // Still pass 1 to the view for display consistency
             'future_independent_variables' => $futureX,
         ]);
     }
+
 }
