@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DataBeras;
 use App\Models\DataUji;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -1482,5 +1483,233 @@ class DataBerasController extends Controller
         $matrix[$row1] = $matrix[$row2];
         $matrix[$row2] = $temp;
         return $matrix;
+    }
+
+    private function callPythonArima($data, $monthsAhead)
+    {
+        $dates = array_keys($data);
+        $values = array_values($data);
+
+        $input = [
+            'dates' => $dates,
+            'values' => $values,
+            'months_ahead' => (int) $monthsAhead
+        ];
+
+        // Ensure script path is correct
+        $scriptPath = base_path('scripts/forecast.py');
+        if (!file_exists($scriptPath)) {
+            throw new \Exception("Python script not found at: {$scriptPath}");
+        }
+
+        $command = 'python3 ' . escapeshellarg($scriptPath);
+        $descriptors = [
+            0 => ["pipe", "r"], // stdin
+            1 => ["pipe", "w"], // stdout
+            2 => ["pipe", "w"], // stderr
+        ];
+
+        $process = proc_open($command, $descriptors, $pipes);
+
+        if (!is_resource($process)) {
+            throw new \Exception("Failed to start Python process");
+        }
+
+        // Write input to stdin
+        fwrite($pipes[0], json_encode($input));
+        fclose($pipes[0]);
+
+        // Read output and errors
+        $result = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+
+        $error = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        proc_close($process);
+
+        if ($error) {
+            throw new \Exception("Python error: " . $error);
+        }
+
+        $decodedResult = json_decode($result, true);
+        if (isset($decodedResult['error'])) {
+            throw new \Exception($decodedResult['error']);
+        }
+
+        return $decodedResult; // Contains 'forecast' and 'dates'
+    }
+
+    /**
+     * Forecast independent variables for future months
+     */
+    private function forecastIndependentVariables($monthsAhead)
+    {
+        $historicalData = DataBeras::orderBy('tanggal')->get();
+        if ($historicalData->count() < 12) {
+            throw new \Exception("Insufficient historical data for forecasting. At least 12 records required.");
+        }
+
+        $variables = [
+            'inflasi_bi',
+            'kurs_usd',
+            'bbm_pertalite',
+            'ump_sulut',
+            'jumlah_penduduk',
+            'pupuk_subsidi'
+        ];
+
+        $forecastedData = [];
+        foreach ($variables as $variable) {
+            $data = $historicalData->pluck($variable, 'tanggal')->toArray();
+            try {
+                $forecast = $this->callPythonArima($data, $monthsAhead);
+                $forecastedData[$variable] = array_combine($forecast['dates'], $forecast['forecast']);
+            } catch (\Exception $e) {
+                // Fallback to rolling average if ARIMA fails
+                $avg = array_sum($data) / count($data);
+                $forecastedData[$variable] = array_fill_keys(
+                    array_map(fn($i) => Carbon::now()->addMonths($i)->startOfMonth()->format('Y-m-d'), range(1, $monthsAhead)),
+                    $avg
+                );
+            }
+        }
+
+        // Structure data for future months
+        $futureData = [];
+        for ($i = 1; $i <= $monthsAhead; $i++) {
+            $date = Carbon::now()->addMonths($i)->startOfMonth()->format('Y-m-d');
+            $row = ['tanggal' => $date];
+            foreach ($variables as $variable) {
+                $row[$variable] = $forecastedData[$variable][$date] ?? array_values($forecastedData[$variable])[0];
+            }
+            $futureData[] = $row;
+        }
+
+        return $futureData;
+    }
+
+    /**
+     * Predict future rice prices
+     */
+    public function predictFuturePrices(Request $request)
+    {
+        $monthsAhead = $request->input('months_ahead', 3); // Default to 3 months
+        if ($monthsAhead < 1 || $monthsAhead > 12) {
+            return response()->json(['error' => 'Months ahead must be between 1 and 12'], 400);
+        }
+
+        // Step 1: Forecast independent variables
+        try {
+            $futureX = $this->forecastIndependentVariables($monthsAhead);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+        // Step 2: Train linear regression model
+        $dataBeras = DataBeras::all();
+        if ($dataBeras->count() < 7) {
+            return response()->json(['error' => 'Insufficient data: At least 7 records required.'], 500);
+        }
+
+        $priceCategories = [
+            'HARGA_BERAS_KUALITAS_BAWAH_I' => 'harga_beras_kualitas_bawah_i',
+            'HARGA_BERAS_KUALITAS_BAWAH_II' => 'harga_beras_kualitas_bawah_ii',
+            'HARGA_BERAS_KUALITAS_MEDIUM_I' => 'harga_beras_kualitas_medium_i',
+            'HARGA_BERAS_KUALITAS_MEDIUM_II' => 'harga_beras_kualitas_medium_ii',
+            'HARGA_BERAS_KUALITAS_SUPER_I' => 'harga_beras_kualitas_super_i',
+            'HARGA_BERAS_KUALITAS_SUPER_II' => 'harga_beras_kualitas_super_ii',
+        ];
+
+        $results = [];
+        foreach ($priceCategories as $category => $dbField) {
+            $cleanedData = [];
+            foreach ($dataBeras as $data) {
+                if (is_numeric($data->harga_beras_kualitas_bawah_i) &&
+                    is_numeric($data->harga_beras_kualitas_bawah_ii) &&
+                    is_numeric($data->harga_beras_kualitas_medium_i) &&
+                    is_numeric($data->harga_beras_kualitas_medium_ii) &&
+                    is_numeric($data->harga_beras_kualitas_super_i) &&
+                    is_numeric($data->harga_beras_kualitas_super_ii) &&
+                    is_numeric($data->inflasi_bi) &&
+                    is_numeric($data->kurs_usd) &&
+                    is_numeric($data->bbm_pertalite) &&
+                    is_numeric($data->ump_sulut) &&
+                    is_numeric($data->jumlah_penduduk) &&
+                    is_numeric($data->pupuk_subsidi)) {
+                    $cleanedData[] = [
+                        'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
+                        'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
+                        'HARGA_BERAS_KUALITAS_MEDIUM_I' => $data->harga_beras_kualitas_medium_i,
+                        'HARGA_BERAS_KUALITAS_MEDIUM_II' => $data->harga_beras_kualitas_medium_ii,
+                        'HARGA_BERAS_KUALITAS_SUPER_I' => $data->harga_beras_kualitas_super_i,
+                        'HARGA_BERAS_KUALITAS_SUPER_II' => $data->harga_beras_kualitas_super_ii,
+                        'INFLASI_BI' => $data->inflasi_bi,
+                        'KURS_USD' => $data->kurs_usd,
+                        'BBM_PERTALITE' => $data->bbm_pertalite,
+                        'UMP_SULUT' => $data->ump_sulut,
+                        'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
+                        'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                    ];
+                }
+            }
+
+            if (empty($cleanedData)) {
+                $results[$category] = ['error' => 'No valid data for regression'];
+                continue;
+            }
+
+            $X = array_map(function($row) {
+                return [
+                    $row['INFLASI_BI'],
+                    $row['KURS_USD'],
+                    $row['BBM_PERTALITE'],
+                    $row['UMP_SULUT'],
+                    $row['JUMLAH_PENDUDUK'],
+                    $row['PUPUK_SUBSIDI']
+                ];
+            }, $cleanedData);
+            $Y = array_column($cleanedData, $category);
+            $Y = array_map(fn($item) => [$item], $Y);
+
+            $X_with_const = array_map(fn($row) => array_merge([1], $row), $X);
+            try {
+                $A = $this->matrixMultiply($this->transpose($X_with_const), $X_with_const);
+                $B = $this->matrixMultiply($this->transpose($X_with_const), $Y);
+                $b = $this->matrixMultiply($this->inverse($A), $B);
+            } catch (\Exception $e) {
+                $results[$category] = ['error' => 'Regression error: ' . $e->getMessage()];
+                continue;
+            }
+
+            // Step 3: Predict for future X values
+            $futurePredictions = [];
+            foreach ($futureX as $futureRow) {
+                $X_future = [
+                    1, // Intercept
+                    $futureRow['inflasi_bi'],
+                    $futureRow['kurs_usd'],
+                    $futureRow['bbm_pertalite'],
+                    $futureRow['ump_sulut'],
+                    $futureRow['jumlah_penduduk'],
+                    $futureRow['pupuk_subsidi']
+                ];
+                $predictedPrice = $this->matrixMultiply([$X_future], $b)[0][0];
+                $futurePredictions[] = [
+                    'tanggal' => $futureRow['tanggal'],
+                    'predicted_price' => number_format(max(0, $predictedPrice), 2), // Ensure non-negative
+                ];
+            }
+
+            $results[$category] = [
+                'coefficients' => array_map(fn($coef) => number_format($coef[0], 4), $b),
+                'future_predictions' => $futurePredictions,
+            ];
+        }
+
+        return view('prediksi_harga.future_predictions', [
+            'results' => $results,
+            'months_ahead' => $monthsAhead,
+        ]);
     }
 }
