@@ -15,6 +15,7 @@ class DataBerasController extends Controller
      */
     public function index(): JsonResponse
     {
+        set_time_limit(0);
         $dataBeras = DataBeras::all();
         return response()->json([
             'success' => true,
