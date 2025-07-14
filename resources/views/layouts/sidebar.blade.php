@@ -13,6 +13,13 @@
             <a href="{{ route('data-beras.analyze') }}"
                 class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('analyze', 'manual-calculation-test/*') ? 'active' : '' }}"><i
                     class="fas fa-chart-area me-2"></i>Prediksi Harga (Data Uji)</a>
+
+            <a href="{{ route('data-beras.predictFuture') }}"
+               class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('predict-future-prices') ? 'active' : '' }}">
+                <i class="fas fa-forward me-2"></i>Prediksi Harga ke Depan
+            </a>
+
+
             <a href="{{ route('data-prediksi') }}"
                 class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('data-prediksi') ? 'active' : '' }}"><i
                     class="fas fa-table me-2"></i>Data Prediksi</a>

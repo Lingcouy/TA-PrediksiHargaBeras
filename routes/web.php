@@ -47,3 +47,7 @@ Route::get('/calculate-coefficients', [DataBerasController::class, 'calculateCoe
 Route::get('/manual-calculation/{category}', [DataBerasController::class, 'manualCalculation'])->name('manual.calculation');
 Route::get('/manual-calculation-test/{category}', [DataBerasController::class, 'manualCalculationTest'])->name('manual.calculation.test');
 Route::get('/prediksi-harga', [DataBerasController::class, 'calculateCoefficients'])->name('prediksi-harga');
+
+
+// Python and Future Prediction
+Route::get('/predict-future-prices', [DataBerasController::class, 'predictFuturePrices'])->name('data-beras.predictFuture');
