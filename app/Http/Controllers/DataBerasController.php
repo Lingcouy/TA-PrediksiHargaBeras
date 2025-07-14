@@ -393,7 +393,6 @@ class DataBerasController extends Controller
                 'error' => 'Insufficient training or testing data after cleaning.'
             ]);
         }
-        //SDASD
         // Define rice price categories
         $priceCategories = [
             'HARGA_BERAS_KUALITAS_BAWAH_I',
@@ -443,15 +442,13 @@ class DataBerasController extends Controller
                 return array_merge([1], $row);
             }, $X_test);
 
-            // Calculate coefficients
+            // Calculate coefficients using the new private method
             try {
-                $A = $this->matrixMultiply($this->transpose($X_train_with_const), $X_train_with_const);
-                $B = $this->matrixMultiply($this->transpose($X_train_with_const), $Y_train);
-                $b = $this->matrixMultiply($this->inverse($A), $B);
+                $b = $this->_calculateRegressionCoefficients($trainingData, $priceCategory);
             } catch (\Exception $e) {
                 return view('prediksi_harga.analyze_test', [
                     'results' => null,
-                    'error' => 'Error calculating coefficients: ' . $e->getMessage()
+                    'error' => $e->getMessage()
                 ]);
             }
 
@@ -580,36 +577,13 @@ class DataBerasController extends Controller
 
         $results = [];
         foreach ($priceCategories as $priceCategory) {
-            // Prepare data (use all data)
-            $X = array_map(function($row) {
-                return [
-                    $row['INFLASI_BI'],
-                    $row['KURS_USD'],
-                    $row['BBM_PERTALITE'],
-                    $row['UMP_SULUT'],
-                    $row['JUMLAH_PENDUDUK'],
-                    $row['PUPUK_SUBSIDI']
-                ];
-            }, $cleanedData);
-            $Y = array_column($cleanedData, $priceCategory);
-            $Y = array_map(function($item) {
-                return [$item];
-            }, $Y);
-
-            // Add intercept column
-            $X_with_const = array_map(function($row) {
-                return array_merge([1], $row);
-            }, $X);
-
-            // Calculate coefficients
+            // Calculate coefficients using the new private method
             try {
-                $A = $this->matrixMultiply($this->transpose($X_with_const), $X_with_const);
-                $B = $this->matrixMultiply($this->transpose($X_with_const), $Y);
-                $b = $this->matrixMultiply($this->inverse($A), $B);
+                $b = $this->_calculateRegressionCoefficients($cleanedData, $priceCategory);
             } catch (\Exception $e) {
                 return view('prediksi_harga.analyze', [
                     'results' => null,
-                    'error' => 'Error calculating coefficients: ' . $e->getMessage()
+                    'error' => $e->getMessage()
                 ]);
             }
 
@@ -621,6 +595,17 @@ class DataBerasController extends Controller
             }
 
             // Calculate predicted prices for all data
+            $X_with_const = array_map(function($row) {
+                return array_merge([1], [
+                    $row['INFLASI_BI'],
+                    $row['KURS_USD'],
+                    $row['BBM_PERTALITE'],
+                    $row['UMP_SULUT'],
+                    $row['JUMLAH_PENDUDUK'],
+                    $row['PUPUK_SUBSIDI']
+                ]);
+            }, $cleanedData);
+
             $predictedPrices = array_map(function($row) use ($b) {
                 return $this->matrixMultiply([$row], $b)[0][0];
             }, $X_with_const);
@@ -810,12 +795,12 @@ class DataBerasController extends Controller
         // Calculate matrix H (X^T Y)
         $matrix_h = [
             $data_sums['Y'],
-            $pairwiseSums['X1Y'] ?? array_sum(array_column($pairwiseCalculations, 'X1Y')),
-            $pairwiseSums['X2Y'] ?? array_sum(array_column($pairwiseCalculations, 'X2Y')),
-            $pairwiseSums['X3Y'] ?? array_sum(array_column($pairwiseCalculations, 'X3Y')),
-            $pairwiseSums['X4Y'] ?? array_sum(array_column($pairwiseCalculations, 'X4Y')),
-            $pairwiseSums['X5Y'] ?? array_sum(array_column($pairwiseCalculations, 'X5Y')),
-            $pairwiseSums['X6Y'] ?? array_sum(array_column($pairwiseCalculations, 'X6Y')),
+            array_sum(array_column($pairwiseCalculations, 'X1Y')),
+            array_sum(array_column($pairwiseCalculations, 'X2Y')),
+            array_sum(array_column($pairwiseCalculations, 'X3Y')),
+            array_sum(array_column($pairwiseCalculations, 'X4Y')),
+            array_sum(array_column($pairwiseCalculations, 'X5Y')),
+            array_sum(array_column($pairwiseCalculations, 'X6Y')),
         ];
 
         // Format matrix H for display
@@ -1340,7 +1325,6 @@ class DataBerasController extends Controller
     }
 
 
-
     /**
      * Matrix multiplication.
      */
@@ -1543,8 +1527,6 @@ class DataBerasController extends Controller
     /**
      * Forecast independent variables for future months
      */
-    // In DataBerasController.php
-
     private function forecastIndependentVariables($monthsAhead)
     {
         $historicalData = DataBeras::orderBy('tanggal')->get();
@@ -1596,6 +1578,35 @@ class DataBerasController extends Controller
         return $futureData;
     }
 
+    /**
+     * Calculate regression coefficients for a given dataset and price category.
+     */
+    private function _calculateRegressionCoefficients($cleanedData, $priceCategory)
+    {
+        $X = array_map(function($row) {
+            return [
+                $row['INFLASI_BI'],
+                $row['KURS_USD'],
+                $row['BBM_PERTALITE'],
+                $row['UMP_SULUT'],
+                $row['JUMLAH_PENDUDUK'],
+                $row['PUPUK_SUBSIDI']
+            ];
+        }, $cleanedData);
+        $Y = array_column($cleanedData, $priceCategory);
+        $Y = array_map(fn($item) => [$item], $Y);
+
+        $X_with_const = array_map(fn($row) => array_merge([1], $row), $X);
+
+        try {
+            $A = $this->matrixMultiply($this->transpose($X_with_const), $X_with_const);
+            $B = $this->matrixMultiply($this->transpose($X_with_const), $Y);
+            $b = $this->matrixMultiply($this->inverse($A), $B);
+            return $b;
+        } catch (\Exception $e) {
+            throw new \Exception('Error calculating coefficients for ' . $priceCategory . ': ' . $e->getMessage());
+        }
+    }
 
     /**
      * Predict future rice prices
@@ -1610,12 +1621,11 @@ class DataBerasController extends Controller
         // Step 1: Forecast independent variables
         try {
             $futureX = $this->forecastIndependentVariables($monthsAhead);
-            //dd($futureX);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
-        // Step 2: Train linear regression model
+        // Step 2: Train linear regression model and get coefficients
         $dataBeras = DataBeras::all();
         if ($dataBeras->count() < 7) {
             return response()->json(['error' => 'Insufficient data: At least 7 records required.'], 500);
@@ -1631,80 +1641,73 @@ class DataBerasController extends Controller
         ];
 
         $results = [];
-        foreach ($priceCategories as $category => $dbField) {
-            $cleanedData = [];
-            foreach ($dataBeras as $data) {
-                if (is_numeric($data->harga_beras_kualitas_bawah_i) &&
-                    is_numeric($data->harga_beras_kualitas_bawah_ii) &&
-                    is_numeric($data->harga_beras_kualitas_medium_i) &&
-                    is_numeric($data->harga_beras_kualitas_medium_ii) &&
-                    is_numeric($data->harga_beras_kualitas_super_i) &&
-                    is_numeric($data->harga_beras_kualitas_super_ii) &&
-                    is_numeric($data->inflasi_bi) &&
-                    is_numeric($data->kurs_usd) &&
-                    is_numeric($data->bbm_pertalite) &&
-                    is_numeric($data->ump_sulut) &&
-                    is_numeric($data->jumlah_penduduk) &&
-                    is_numeric($data->pupuk_subsidi)) {
-                    $cleanedData[] = [
-                        'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
-                        'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
-                        'HARGA_BERAS_KUALITAS_MEDIUM_I' => $data->harga_beras_kualitas_medium_i,
-                        'HARGA_BERAS_KUALITAS_MEDIUM_II' => $data->harga_beras_kualitas_medium_ii,
-                        'HARGA_BERAS_KUALITAS_SUPER_I' => $data->harga_beras_kualitas_super_i,
-                        'HARGA_BERAS_KUALITAS_SUPER_II' => $data->harga_beras_kualitas_super_ii,
-                        'INFLASI_BI' => $data->inflasi_bi,
-                        'KURS_USD' => $data->kurs_usd,
-                        'BBM_PERTALITE' => $data->bbm_pertalite,
-                        'UMP_SULUT' => $data->ump_sulut,
-                        'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
-                        'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
-                    ];
-                }
-            }
-
-            if (empty($cleanedData)) {
-                $results[$category] = ['error' => 'No valid data for regression'];
-                continue;
-            }
-
-            $X = array_map(function($row) {
-                return [
-                    $row['INFLASI_BI'],
-                    $row['KURS_USD'],
-                    $row['BBM_PERTALITE'],
-                    $row['UMP_SULUT'],
-                    $row['JUMLAH_PENDUDUK'],
-                    $row['PUPUK_SUBSIDI']
+        $cleanedData = [];
+        foreach ($dataBeras as $data) {
+            if (is_numeric($data->harga_beras_kualitas_bawah_i) &&
+                is_numeric($data->harga_beras_kualitas_bawah_ii) &&
+                is_numeric($data->harga_beras_kualitas_medium_i) &&
+                is_numeric($data->harga_beras_kualitas_medium_ii) &&
+                is_numeric($data->harga_beras_kualitas_super_i) &&
+                is_numeric($data->harga_beras_kualitas_super_ii) &&
+                is_numeric($data->inflasi_bi) &&
+                is_numeric($data->kurs_usd) &&
+                is_numeric($data->bbm_pertalite) &&
+                is_numeric($data->ump_sulut) &&
+                is_numeric($data->jumlah_penduduk) &&
+                is_numeric($data->pupuk_subsidi)) {
+                $cleanedData[] = [
+                    'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
+                    'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
+                    'HARGA_BERAS_KUALITAS_MEDIUM_I' => $data->harga_beras_kualitas_medium_i,
+                    'HARGA_BERAS_KUALITAS_MEDIUM_II' => $data->harga_beras_kualitas_medium_ii,
+                    'HARGA_BERAS_KUALITAS_SUPER_I' => $data->harga_beras_kualitas_super_i,
+                    'HARGA_BERAS_KUALITAS_SUPER_II' => $data->harga_beras_kualitas_super_ii,
+                    'INFLASI_BI' => $data->inflasi_bi,
+                    'KURS_USD' => $data->kurs_usd,
+                    'BBM_PERTALITE' => $data->bbm_pertalite,
+                    'UMP_SULUT' => $data->ump_sulut,
+                    'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
+                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
                 ];
-            }, $cleanedData);
-            $Y = array_column($cleanedData, $category);
-            $Y = array_map(fn($item) => [$item], $Y);
+            }
+        }
 
-            $X_with_const = array_map(fn($row) => array_merge([1], $row), $X);
+        if (empty($cleanedData)) {
+            return response()->json(['error' => 'No valid data for regression'], 500);
+        }
+
+        foreach ($priceCategories as $category => $dbField) {
             try {
-                $A = $this->matrixMultiply($this->transpose($X_with_const), $X_with_const);
-                $B = $this->matrixMultiply($this->transpose($X_with_const), $Y);
-                $b = $this->matrixMultiply($this->inverse($A), $B);
-                //dd($b);
+                // Get coefficients using the refactored method
+                $b = $this->_calculateRegressionCoefficients($cleanedData, $category);
             } catch (\Exception $e) {
                 $results[$category] = ['error' => 'Regression error: ' . $e->getMessage()];
                 continue;
             }
 
-            // Step 3: Predict for future X values
+            // Step 3: Predict for future X values using the obtained coefficients
             $futurePredictions = [];
             foreach ($futureX as $futureRow) {
                 $X_future = [
-                    1, // Intercept
-                    $futureRow['inflasi_bi'],
-                    $futureRow['kurs_usd'],
-                    $futureRow['bbm_pertalite'],
-                    $futureRow['ump_sulut'],
-                    $futureRow['jumlah_penduduk'],
-                    $futureRow['pupuk_subsidi']
+                    1, // Intercept (b0)
+                    $futureRow['inflasi_bi'], // b1
+                    $futureRow['kurs_usd'], // b2
+                    $futureRow['bbm_pertalite'], // b3
+                    $futureRow['ump_sulut'], // b4
+                    $futureRow['jumlah_penduduk'], // b5
+                    $futureRow['pupuk_subsidi'] // b6
                 ];
-                $predictedPrice = $this->matrixMultiply([$X_future], $b)[0][0];
+
+                // Calculate predicted price using the formula:
+                // Y_predicted = b0 + b1*X1 + b2*X2 + b3*X3 + b4*X4 + b5*X5 + b6*X6
+                $predictedPrice = $b[0][0] +
+                    $b[1][0] * $X_future[1] +
+                    $b[2][0] * $X_future[2] +
+                    $b[3][0] * $X_future[3] +
+                    $b[4][0] * $X_future[4] +
+                    $b[5][0] * $X_future[5] +
+                    $b[6][0] * $X_future[6];
+
                 $futurePredictions[] = [
                     'tanggal' => $futureRow['tanggal'],
                     'predicted_price' => number_format(max(0, $predictedPrice), 2), // Ensure non-negative
@@ -1715,10 +1718,8 @@ class DataBerasController extends Controller
                 'coefficients' => array_map(fn($coef) => number_format($coef[0], 4), $b),
                 'future_predictions' => $futurePredictions,
             ];
-
         }
 
-        //dd($results);
         return view('prediksi_harga.future_predictions', [
             'results' => $results,
             'months_ahead' => $monthsAhead,

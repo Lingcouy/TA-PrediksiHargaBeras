@@ -2,8 +2,8 @@
 import sys
 import json
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
 import warnings
+from pmdarima import auto_arima  # Import auto_arima
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -36,23 +36,26 @@ try:
         print(json.dumps({"error": "Insufficient data points for ARIMA"}))
         sys.exit(1)
 
-    # Fit ARIMA model (order can be tuned or passed as parameter)
-    model = ARIMA(series, order=(1, 1, 1))  # Adjust order as needed
-    model_fit = model.fit()
-
-    #from pmdarima import auto_arima
-    # # Replace the ARIMA model line
-    # model = auto_arima(series, seasonal=True, m=12, suppress_warnings=True)
-    # model_fit = model.fit()
-    # forecast = model_fit.predict(n_periods=data['months_ahead'])
+    # Fit ARIMA model using auto_arima with optimizations
+    model = auto_arima(
+        series,
+        seasonal=True,
+        m=12,  # Monthly seasonality
+        stepwise=True,  # Use stepwise search for faster fitting
+        suppress_warnings=True,
+        max_order=None,  # Allow auto_arima to determine the best order
+        max_p=5,  # Limit maximum p
+        max_q=5,  # Limit maximum q
+        trace=False  # Disable trace output for cleaner logs
+    )
 
     # Forecast
-    forecast = model_fit.forecast(steps=data['months_ahead'])
+    forecast, conf_int = model.predict(n_periods=data['months_ahead'], return_conf_int=True)
 
     # Output as JSON
     print(json.dumps({
         "forecast": forecast.tolist(),
-        "dates": [d.strftime('%Y-%m-%d') for d in forecast.index]
+        "dates": [(pd.Timestamp.now() + pd.DateOffset(months=i)).strftime('%Y-%m-%d') for i in range(1, data['months_ahead'] + 1)]
     }))
 except Exception as e:
     print(json.dumps({"error": f"ARIMA processing error: {str(e)}"}))
