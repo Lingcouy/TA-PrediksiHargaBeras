@@ -80,7 +80,6 @@
                         <div class="col-md-4 mb-4">
                             <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
                                 <div>
-
                                     <h3 class="fs-2">{{ number_format((float)str_replace(',', '', $result['future_predictions'][0]['predicted_price']), 2, '.', ',') }}
                                     </h3>
                                     <p class="fs-5">{{ str_replace('_', ' ', $category) }} (Next Month)</p>
@@ -131,6 +130,85 @@
                 </div>
             </div>
 
+            <!-- New Section: Future Independent Variables -->
+            <div class="row my-5">
+                <h3 class="fs-4 mb-3">Future Independent Variables ({{ $months_ahead }} {{ $months_ahead == 1 ? 'Month' : 'Months' }} Ahead)</h3>
+                <div class="col">
+                    @if (!empty($future_independent_variables))
+                        <table class="table bg-white rounded shadow-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Inflasi BI</th>
+                                <th scope="col">Kurs USD</th>
+                                <th scope="col">BBM Pertalite</th>
+                                <th scope="col">UMP Sulut</th>
+                                <th scope="col">Jumlah Penduduk</th>
+                                <th scope="col">Pupuk Subsidi</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($future_independent_variables as $future_data)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($future_data['tanggal'])->format('F-Y') }}</td>
+                                    <td>{{ number_format($future_data['inflasi_bi'], 2, '.', ',') }}</td>
+                                    <td>{{ number_format($future_data['kurs_usd'], 2, '.', ',') }}</td>
+                                    <td>{{ number_format($future_data['bbm_pertalite'], 2, '.', ',') }}</td>
+                                    <td>{{ number_format($future_data['ump_sulut'], 2, '.', ',') }}</td>
+                                    <td>{{ number_format($future_data['jumlah_penduduk'], 0, '.', ',') }}</td>
+                                    <td>{{ number_format($future_data['pupuk_subsidi'], 2, '.', ',') }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="alert alert-info">No future independent variables available.</div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Coefficients Table -->
+            <div class="row my-5">
+                <h3 class="fs-4 mb-3">Regression Coefficients</h3>
+                <div class="col">
+                    <table class="table bg-white rounded shadow-sm table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Category</th>
+                            <th scope="col">Intercept (b0)</th>
+                            <th scope="col">Inflasi BI (b1)</th>
+                            <th scope="col">Kurs USD (b2)</th>
+                            <th scope="col">BBM Pertalite (b3)</th>
+                            <th scope="col">UMP Sulut (b4)</th>
+                            <th scope="col">Jumlah Penduduk (b5)</th>
+                            <th scope="col">Pupuk Subsidi (b6)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($results as $category => $result)
+                            @if (!isset($result['error']))
+                                <tr>
+                                    <td>{{ str_replace('_', ' ', $category) }}</td>
+                                    <td>{{ $result['coefficients'][0] }}</td>
+                                    <td>{{ $result['coefficients'][1] }}</td>
+                                    <td>{{ $result['coefficients'][2] }}</td>
+                                    <td>{{ $result['coefficients'][3] }}</td>
+                                    <td>{{ $result['coefficients'][4] }}</td>
+                                    <td>{{ $result['coefficients'][5] }}</td>
+                                    <td>{{ $result['coefficients'][6] }}</td>
+                                </tr>
+                            @endif
+                        @endforeach
+                        @if (empty(array_filter($results, fn($r) => !isset($r['error']))))
+                            <tr>
+                                <td colspan="7" class="text-center">No coefficients available</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Chart -->
             @if (!empty($results) && !isset($results[array_key_first($results)]['error']))
                 <div class="row my-5">
@@ -155,19 +233,17 @@
                     type: 'line',
                     data: {
                         labels: @json(array_map(fn($date) => \Carbon\Carbon::parse($date)->format('F-Y'), array_column($results[array_key_first($results)]['future_predictions'], 'tanggal'))),
-
                         datasets: [
                                 @foreach ($results as $category => $result)
                                 @if (!isset($result['error']))
                             {
                                 label: '{{ str_replace('_', ' ', $category) }}',
-                                    @php
-                                        $dataPoints = array_map(function ($price) {
-                                            return (float) str_replace(',', '', $price['predicted_price']);
-                                        }, $result['future_predictions']);
-                                    @endphp
-
-                                    data: @json($dataPoints),
+                                @php
+                                    $dataPoints = array_map(function ($price) {
+                                        return (float) str_replace(',', '', $price['predicted_price']);
+                                    }, $result['future_predictions']);
+                                @endphp
+                                data: @json($dataPoints),
                                 borderColor: '{{ $loop->index == 0 ? '#007bff' : ($loop->index == 1 ? '#28a745' : ($loop->index == 2 ? '#dc3545' : ($loop->index == 3 ? '#ffc107' : ($loop->index == 4 ? '#17a2b8' : '#6f42c1')))) }}',
                                 backgroundColor: '{{ $loop->index == 0 ? 'rgba(0, 123, 255, 0.1)' : ($loop->index == 1 ? 'rgba(40, 167, 69, 0.1)' : ($loop->index == 2 ? 'rgba(220, 53, 69, 0.1)' : ($loop->index == 3 ? 'rgba(255, 193, 7, 0.1)' : ($loop->index == 4 ? 'rgba(23, 162, 184, 0.1)' : 'rgba(111, 66, 193, 0.1)')))) }}',
                                 fill: false

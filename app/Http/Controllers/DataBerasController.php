@@ -1722,6 +1722,7 @@ class DataBerasController extends Controller
         return view('prediksi_harga.future_predictions', [
             'results' => $results,
             'months_ahead' => $monthsAhead,
+            'future_independent_variables' => $futureX,
         ]);
     }
 }
