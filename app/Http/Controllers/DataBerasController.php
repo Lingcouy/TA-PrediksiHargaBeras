@@ -1722,8 +1722,8 @@ class DataBerasController extends Controller
             ];
         }
 
-        $end = microtime(true);
-        $duration = $end - $start;
+//        $end = microtime(true);
+//        $duration = $end - $start;
 
         //dd($duration);
 
