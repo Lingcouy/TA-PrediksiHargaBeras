@@ -132,6 +132,45 @@
                 </div>
             </div>
 
+            <!-- New Section: Last 3 Actual Data -->
+            <div class="row my-5">
+                <h3 class="fs-4 mb-3">Data Aktual Terakhir</h3>
+                <div class="col">
+                    @if (!empty($last_three_data) && $last_three_data->count() > 0)
+                        <table class="table bg-white rounded shadow-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th scope="col" width="50">#</th>
+                                <th scope="col">Tanggal</th>
+                                <th scope="col">HARGA BERAS KUALITAS BAWAH I</th>
+                                <th scope="col">HARGA BERAS KUALITAS BAWAH II</th>
+                                <th scope="col">HARGA BERAS KUALITAS MEDIUM I</th>
+                                <th scope="col">HARGA BERAS KUALITAS MEDIUM II</th>
+                                <th scope="col">HARGA BERAS KUALITAS SUPER I</th>
+                                <th scope="col">HARGA BERAS KUALITAS SUPER II</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($last_three_data as $index => $data)
+                                <tr>
+                                    <th scope="row">{{ $index + 1 }}</th>
+                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('F-Y') }}</td>
+                                    <td>{{ number_format($data->harga_beras_kualitas_bawah_i, 2, '.', ',') }}</td>
+                                    <td>{{ number_format($data->harga_beras_kualitas_bawah_ii, 2, '.', ',') }}</td>
+                                    <td>{{ number_format($data->harga_beras_kualitas_medium_i, 2, '.', ',') }}</td>
+                                    <td>{{ number_format($data->harga_beras_kualitas_medium_ii, 2, '.', ',') }}</td>
+                                    <td>{{ number_format($data->harga_beras_kualitas_super_i, 2, '.', ',') }}</td>
+                                    <td>{{ number_format($data->harga_beras_kualitas_super_ii, 2, '.', ',') }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="alert alert-info">Tidak ada data aktual terakhir ditemukan untuk perbandingan.</div>
+                    @endif
+                </div>
+            </div>
+
             <!-- New Section: Future Independent Variables -->
             <div class="row my-5">
                 <h3 class="fs-4 mb-3">Variabel Indipenden (Bulan Selanjutnya)</h3> {{-- Changed text here --}}
@@ -171,12 +210,12 @@
 
             <!-- Coefficients Table -->
             <div class="row my-5">
-                <h3 class="fs-4 mb-3">Koofisien Regresi</h3>
+                <h3 class="fs-4 mb-3">Koefisien Regresi</h3>
                 <div class="col">
                     <table class="table bg-white rounded shadow-sm table-hover">
                         <thead>
                         <tr>
-                            <th scope="col">Kategiru</th>
+                            <th scope="col">Kategori</th>
                             <th scope="col">Intercept (b0)</th>
                             <th scope="col">Inflasi BI (b1)</th>
                             <th scope="col">Kurs USD (b2)</th>

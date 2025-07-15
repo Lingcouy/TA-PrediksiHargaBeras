@@ -1727,10 +1727,13 @@ class DataBerasController extends Controller
 
         //dd($duration);
 
+        $lastThreeData = DataBeras::orderBy('tanggal', 'desc')->take(3)->get();
+
         return view('prediksi_harga.future_predictions', [
             'results' => $results,
             'months_ahead' => $monthsAhead, // Still pass 1 to the view for display consistency
             'future_independent_variables' => $futureX,
+            'last_three_data' => $lastThreeData,
         ]);
     }
 
