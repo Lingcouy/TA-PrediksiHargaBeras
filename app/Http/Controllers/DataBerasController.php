@@ -7,6 +7,7 @@ use App\Models\DataUji;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class DataBerasController extends Controller
 {
@@ -15,7 +16,7 @@ class DataBerasController extends Controller
      */
     public function index(): JsonResponse
     {
-        set_time_limit(0);
+
         $dataBeras = DataBeras::all();
         return response()->json([
             'success' => true,
@@ -1487,7 +1488,7 @@ class DataBerasController extends Controller
             throw new \Exception("Python script not found at: {$scriptPath}");
         }
 
-        $command = 'python3 ' . escapeshellarg($scriptPath);
+        $command = 'python ' . escapeshellarg($scriptPath);
         $descriptors = [
             0 => ["pipe", "r"], // stdin
             1 => ["pipe", "w"], // stdout
@@ -1614,6 +1615,8 @@ class DataBerasController extends Controller
      */
     public function predictFuturePrices(Request $request)
     {
+        set_time_limit(0); // No time limit
+
         $monthsAhead = 1; // Hardcode to 1 for the next month only
 
         // Step 1: Forecast independent variables
@@ -1718,6 +1721,11 @@ class DataBerasController extends Controller
                 'future_predictions' => $futurePredictions,
             ];
         }
+
+        $end = microtime(true);
+        $duration = $end - $start;
+
+        //dd($duration);
 
         return view('prediksi_harga.future_predictions', [
             'results' => $results,

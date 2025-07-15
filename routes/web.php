@@ -51,3 +51,14 @@ Route::get('/prediksi-harga', [DataBerasController::class, 'calculateCoefficient
 
 // Python and Future Prediction
 Route::get('/predict-future-prices', [DataBerasController::class, 'predictFuturePrices'])->name('data-beras.predictFuture');
+
+
+
+//Route::get('/test-carbon-locale', function () {
+//    \Carbon\Carbon::setLocale('id');
+//    $date = \Carbon\Carbon::now();
+//    return [
+//        'locale' => \Carbon\Carbon::getLocale(),
+//        'formatted_date' => $date->translatedFormat('l, d F Y H:i:s'),
+//    ];
+//});
