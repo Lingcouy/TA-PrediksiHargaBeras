@@ -37,18 +37,18 @@ try:
         sys.exit(1)
 
 
-    # Fit ARIMA model using auto_arima with optimizations
-#     model = auto_arima(
-#         series,
-#         seasonal=True,
-#         m=12,  # Monthly seasonality
-#         stepwise=True,  # Use stepwise search for faster fitting
-#         suppress_warnings=True,
-#         max_order=None,  # Allow auto_arima to determine the best order
-#         max_p=5,  # Limit maximum p
-#         max_q=5,  # Limit maximum q
-#         trace=False  # Disable trace output for cleaner logs
-#     )
+    #Fit ARIMA model using auto_arima with optimizations
+    model = auto_arima(
+        series,
+        seasonal=True,
+        m=12,  # Monthly seasonality
+        stepwise=True,  # Use stepwise search for faster fitting
+        suppress_warnings=True,
+        max_order=None,  # Allow auto_arima to determine the best order
+        max_p=5,  # Limit maximum p
+        max_q=5,  # Limit maximum q
+        trace=False  # Disable trace output for cleaner logs
+    )
 
 #     model = auto_arima(
 #         series,
@@ -65,22 +65,22 @@ try:
 #         trace=False,
 #         n_jobs=-1  # Use all available CPU cores
 #     )
-    model = auto_arima(
-        series,
-        seasonal=True,
-        m=12,
-        stepwise=True,
-        suppress_warnings=True,
-        max_p=3,
-        max_q=3,
-        max_P=1,
-        max_Q=1,
-        max_D=1,
-        max_d=2,
-        trace=False,
-        n_jobs=-1,
-        approximation=True  # Enable approximation for faster fitting
-    )
+    # model = auto_arima(
+    #     series,
+    #     seasonal=True,
+    #     m=12,
+    #     stepwise=True,
+    #     suppress_warnings=True,
+    #     max_p=3,
+    #     max_q=3,
+    #     max_P=1,
+    #     max_Q=1,
+    #     max_D=1,
+    #     max_d=2,
+    #     trace=False,
+    #     n_jobs=-1,
+    #     approximation=True  # Enable approximation for faster fitting
+    # )
     # Forecast
 
 

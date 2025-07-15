@@ -1,12 +1,21 @@
 <?php
 
-use App\Http\Controllers\DataBerasController;
-use App\Http\Controllers\LoginController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\DataBerasController;
+
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    } else {
+        return redirect()->route('login');
+    }
+});
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::get('/', [LoginController::class, 'showLoginForm']);
+//Route::get('/', [LoginController::class, 'showLoginForm']);
 
 //Route::get('/', [LoginController::class, 'login']);
 

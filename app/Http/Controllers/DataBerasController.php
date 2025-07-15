@@ -1615,8 +1615,8 @@ class DataBerasController extends Controller
      */
     public function predictFuturePrices(Request $request)
     {
-        set_time_limit(0); // No time limit
-
+       // set_time_limit(0); // No time limit
+        ini_set('max_execution_time', 0);
         $monthsAhead = 1; // Hardcode to 1 for the next month only
 
         // Step 1: Forecast independent variables

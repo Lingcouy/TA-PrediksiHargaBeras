@@ -63,7 +63,7 @@
                                 </div>
                             @endif
                             <div class="button input-box">
-                                <input type="submit" value="Submit">
+                                <input type="submit" value="Masuk">
                             </div>
 
                             <div class="text sign-up-text">
