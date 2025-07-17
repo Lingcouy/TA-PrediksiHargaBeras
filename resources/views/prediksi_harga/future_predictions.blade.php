@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Prediksi Harga ke Selanjutnya')
+@section('title', 'Prediksi Harga ke Depan')
 @section('container')
 
     <!-- Page Content -->

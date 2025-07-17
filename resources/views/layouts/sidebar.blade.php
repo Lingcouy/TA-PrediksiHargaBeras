@@ -10,9 +10,9 @@
             <a href="{{ route('prediksi-harga') }}"
                 class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('prediksi-harga', 'manual-calculation/*', 'calculate-coefficients') ? 'active' : '' }}"><i
                     class="fas fa-chart-line me-2"></i>Prediksi Harga</a>
-            <a href="{{ route('data-beras.analyze') }}"
-                class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('analyze', 'manual-calculation-test/*') ? 'active' : '' }}"><i
-                    class="fas fa-chart-area me-2"></i>Prediksi Harga (Data Uji)</a>
+{{--            <a href="{{ route('data-beras.analyze') }}"--}}
+{{--                class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('analyze', 'manual-calculation-test/*') ? 'active' : '' }}"><i--}}
+{{--                    class="fas fa-chart-area me-2"></i>Prediksi Harga (Data Uji)</a>--}}
 
             <a href="{{ route('data-beras.predictFuture') }}"
                class="list-group-item list-group-item-action bg-transparent second-text fw-bold {{ Request::is('predict-future-prices') ? 'active' : '' }}">

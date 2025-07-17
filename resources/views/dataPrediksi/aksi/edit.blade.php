@@ -63,8 +63,9 @@
                                     @for ($i = 1; $i <= 12; $i++)
                                         <option value="{{ $i }}"
                                             {{ old('bulan', \Carbon\Carbon::parse($dataBeras->tanggal)->month) == $i ? 'selected' : '' }}>
-                                            {{ \Carbon\Carbon::create()->month($i)->format('F') }}
+                                            {{ \Carbon\Carbon::create()->month($i)->locale('id')->isoFormat('MMMM') }}
                                         </option>
+
                                     @endfor
                                 </select>
                                 @error('bulan')
