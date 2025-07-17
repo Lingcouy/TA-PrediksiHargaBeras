@@ -104,7 +104,8 @@
                             @foreach ($dataPrediksis as $dataPrediksi)
                                 <tr>
                                     <td>{{ $nomor++ }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($dataPrediksi->tanggal)->format('F-Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($dataPrediksi->tanggal)->locale('id')->isoFormat('MMMM-YYYY') }}</td>
+
                                     <td>{{ number_format($dataPrediksi->harga_beras_kualitas_bawah_i, 2) }}</td>
                                     <td>{{ number_format($dataPrediksi->harga_beras_kualitas_bawah_ii, 2) }}</td>
                                     <td>{{ number_format($dataPrediksi->harga_beras_kualitas_medium_i, 2) }}</td>

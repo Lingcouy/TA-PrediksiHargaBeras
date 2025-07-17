@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         App::setLocale('id');
 
         // Set locale Carbon ke Indonesia
-        Carbon::setLocale('id_ID'); // Bisa juga 'id' saja, tergantung sistem
+        Carbon::setLocale('id'); // Bisa juga 'id' saja, tergantung sistem
 
         // (Opsional) Paksa format lokal dari Carbon Intl
         \Carbon\Carbon::setToStringFormat('l, j F Y H:i'); // Contoh format

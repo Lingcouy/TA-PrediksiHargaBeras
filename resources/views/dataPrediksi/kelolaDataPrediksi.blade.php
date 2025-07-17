@@ -122,7 +122,9 @@
                             @foreach ($dataBeras as $data)
                                 <tr>
                                     <td>{{ $nomor++ }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('F Y') }}</td>
+{{--                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('F Y') }}</td>--}}
+                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->locale('id')->isoFormat('MMMM-YYYY') }}</td>
+
                                     <td>{{ number_format($data->harga_beras_kualitas_bawah_i, 2) }}</td>
                                     <td>{{ number_format($data->harga_beras_kualitas_bawah_ii, 2) }}</td>
                                     <td>{{ number_format($data->harga_beras_kualitas_medium_i, 2) }}</td>

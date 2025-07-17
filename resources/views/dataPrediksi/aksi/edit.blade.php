@@ -209,7 +209,7 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-sm-3 offset-sm-2">
-                                <button type="submit" class="btn btn-success">Update</button>
+                                <button type="submit" class="btn btn-success">Ubah</button>
                             </div>
                         </div>
                     </div>

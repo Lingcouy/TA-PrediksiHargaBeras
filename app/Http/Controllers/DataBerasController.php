@@ -698,10 +698,11 @@ class DataBerasController extends Controller
                 is_numeric($data->bbm_pertalite) &&
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
-                is_numeric($data->pupuk_nonsubsidi)) { // Diubah
+                is_numeric($data->pupuk_nonsubsidi)) {
                 $cleanedData[] = [
                     'NO' => $data->id,
-                    'TANGGAL' => \Carbon\Carbon::parse($data->tanggal)->format('F-Y'),
+
+                    'TANGGAL' => \Carbon\Carbon::parse($data->tanggal)->locale('id')->isoFormat('MMMM-YYYY'),
                     'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
                     'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
                     'HARGA_BERAS_KUALITAS_MEDIUM_I' => $data->harga_beras_kualitas_medium_i,
