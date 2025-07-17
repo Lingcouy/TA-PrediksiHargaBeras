@@ -40,7 +40,7 @@ class DataBerasSeeder extends Seeder
                 'bbm_pertalite' => (float)$row[9],
                 'ump_sulut' => (float)$row[10],
                 'jumlah_penduduk' => (float)$row[11],
-                'pupuk_subsidi' => (float)$row[12],
+                'pupuk_nonsubsidi' => (float)$row[12],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

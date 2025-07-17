@@ -110,7 +110,7 @@
                             <th scope="col">BBM Pertalite</th>
                             <th scope="col">UMP Sulut</th>
                             <th scope="col">Jumlah Penduduk</th>
-                            <th scope="col">Pupuk Subsidi</th>
+                            <th scope="col">Pupuk Non-Subsidi</th>
                             <th scope="col">Aksi</th>
                         </tr>
                         </thead>
@@ -134,7 +134,7 @@
                                     <td>{{ number_format($data->bbm_pertalite, 2) }}</td>
                                     <td>{{ number_format($data->ump_sulut, 2) }}</td>
                                     <td>{{ number_format($data->jumlah_penduduk, 0) }}</td>
-                                    <td>{{ number_format($data->pupuk_subsidi, 2) }}</td>
+                                    <td>{{ number_format($data->pupuk_nonsubsidi, 2) }}</td>
                                     <td>
                                         <a href="{{ route('keloladataprediksi.edit', $data->id) }}"
                                            class="badge bg-primary"><i class="fas fa-edit"></i></a>

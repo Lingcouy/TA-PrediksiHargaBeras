@@ -1,6 +1,11 @@
 @extends('layouts.main')
 @section('title', 'Data Prediksi')
 @section('container')
+
+    @php
+        \Carbon\Carbon::setLocale('id');
+    @endphp
+
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4">
@@ -88,7 +93,7 @@
                             <th scope="col">BBM Pertalite</th>
                             <th scope="col">UMP Sulut</th>
                             <th scope="col">Jumlah Penduduk</th>
-                            <th scope="col">Pupuk Subsidi</th>
+                            <th scope="col">Pupuk Non-Subsidi</th>
                         </tr>
                         </thead>
                         <tbody>

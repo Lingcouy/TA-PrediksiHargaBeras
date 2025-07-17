@@ -24,7 +24,7 @@ class DataBeras extends Model
         'bbm_pertalite',
         'ump_sulut',
         'jumlah_penduduk',
-        'pupuk_subsidi',
+        'pupuk_nonsubsidi', // Diubah dari pupuk_subsidi
     ];
 
     protected $casts = [
@@ -40,6 +40,6 @@ class DataBeras extends Model
         'bbm_pertalite' => 'decimal:2',
         'ump_sulut' => 'decimal:2',
         'jumlah_penduduk' => 'decimal:2',
-        'pupuk_subsidi' => 'decimal:2',
+        'pupuk_nonsubsidi' => 'decimal:2', // Diubah dari pupuk_subsidi
     ];
 }

@@ -47,11 +47,11 @@
 
                             <div class="input-box">
                                 <i class="fas fa-user"></i>
-                                <input type="text" name="username" placeholder="Masukkan Username" required>
+                                <input type="text" name="username" placeholder="Masukkan Nama Pengguna" required>
                             </div>
                             <div class="input-box">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" name="password" placeholder="Masukkan Password" required>
+                                <input type="password" name="password" placeholder="Masukkan Kata Sandi" required>
                             </div>
                             @if ($errors->any())
                                 <div class="alert alert-danger">

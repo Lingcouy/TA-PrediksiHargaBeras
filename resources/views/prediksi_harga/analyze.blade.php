@@ -63,7 +63,7 @@
                                     <li>BBM_PERTALITE: {{ $data['coefficients'][3] }}</li>
                                     <li>UMP_SULUT: {{ $data['coefficients'][4] }}</li>
                                     <li>JUMLAH_PENDUDUK: {{ $data['coefficients'][5] }}</li>
-                                    <li>PUPUK_SUBSIDI: {{ $data['coefficients'][6] }}</li>
+                                    <li>PUPUK_NONSUBSIDI: {{ $data['coefficients'][6] }}</li>
                                 </ul>
                                 <p><strong>MAE:</strong> {{ $data['mae'] }}</p>
                                 <p><strong>RMSE:</strong> {{ $data['rmse'] }}</p>

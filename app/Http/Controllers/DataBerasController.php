@@ -24,6 +24,11 @@ class DataBerasController extends Controller
         ]);
     }
 
+    public function boot(): void
+    {
+        Carbon::setLocale('id');
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -42,7 +47,7 @@ class DataBerasController extends Controller
             'bbm_pertalite' => 'required|numeric|min:0',
             'ump_sulut' => 'required|numeric|min:0',
             'jumlah_penduduk' => 'required|numeric|min:0',
-            'pupuk_subsidi' => 'required|numeric|min:0',
+            'pupuk_nonsubsidi' => 'required|numeric|min:0', // Diubah
         ]);
 
         $dataBeras = DataBeras::create($validated);
@@ -83,7 +88,7 @@ class DataBerasController extends Controller
             'bbm_pertalite' => 'required|numeric|min:0',
             'ump_sulut' => 'required|numeric|min:0',
             'jumlah_penduduk' => 'required|numeric|min:0',
-            'pupuk_subsidi' => 'required|numeric|min:0',
+            'pupuk_nonsubsidi' => 'required|numeric|min:0', // Diubah
         ]);
 
         $dataBeras->update($validated);
@@ -217,7 +222,7 @@ class DataBerasController extends Controller
             'bbm_pertalite' => 'required|numeric|min:0',
             'ump_sulut' => 'required|numeric|min:0',
             'jumlah_penduduk' => 'required|numeric|min:0',
-            'pupuk_subsidi' => 'required|numeric|min:0',
+            'pupuk_nonsubsidi' => 'required|numeric|min:0', // Diubah
         ], [
             'required' => 'Kolom :attribute perlu diisi.',
             'bulan.between' => 'Bulan harus antara 1 dan 12.',
@@ -267,7 +272,7 @@ class DataBerasController extends Controller
             'bbm_pertalite' => 'required|numeric|min:0',
             'ump_sulut' => 'required|numeric|min:0',
             'jumlah_penduduk' => 'required|numeric|min:0',
-            'pupuk_subsidi' => 'required|numeric|min:0',
+            'pupuk_nonsubsidi' => 'required|numeric|min:0', // Diubah
         ], [
             'bulan.between' => 'Bulan harus antara 1 dan 12.',
             'tahun.digits' => 'Tahun harus terdiri dari 4 digit.',
@@ -360,7 +365,7 @@ class DataBerasController extends Controller
                 is_numeric($data->bbm_pertalite) &&
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
-                is_numeric($data->pupuk_subsidi)) {
+                is_numeric($data->pupuk_nonsubsidi)) { // Diubah
 
                 $dataArray = [
                     'NO' => $data->id,
@@ -375,7 +380,7 @@ class DataBerasController extends Controller
                     'BBM_PERTALITE' => $data->bbm_pertalite,
                     'UMP_SULUT' => $data->ump_sulut,
                     'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
-                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                    'PUPUK_NONSUBISIDI' => $data->pupuk_nonsubsidi, // Diubah
                 ];
 
                 // Check if the date exists in DataUji
@@ -415,7 +420,7 @@ class DataBerasController extends Controller
                     $row['BBM_PERTALITE'],
                     $row['UMP_SULUT'],
                     $row['JUMLAH_PENDUDUK'],
-                    $row['PUPUK_SUBSIDI']
+                    $row['PUPUK_NONSUBISIDI'] // Diubah
                 ];
             }, $trainingData);
             $Y_train = array_column($trainingData, $priceCategory);
@@ -431,7 +436,7 @@ class DataBerasController extends Controller
                     $row['BBM_PERTALITE'],
                     $row['UMP_SULUT'],
                     $row['JUMLAH_PENDUDUK'],
-                    $row['PUPUK_SUBSIDI']
+                    $row['PUPUK_NONSUBISIDI'] // Diubah
                 ];
             }, $testingData);
             $Y_test = array_column($testingData, $priceCategory);
@@ -456,7 +461,7 @@ class DataBerasController extends Controller
 
             // Build regression equation
             $regressionEquation = "Y = " . number_format($b[0][0], 4);
-            $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_SUBSIDI'];
+            $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_NONSUBISIDI']; // Diubah
             foreach ($variables as $i => $var) {
                 $regressionEquation .= " + (" . number_format($b[$i + 1][0], 4) . " * {$var})";
             }
@@ -538,7 +543,7 @@ class DataBerasController extends Controller
                 is_numeric($data->bbm_pertalite) &&
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
-                is_numeric($data->pupuk_subsidi)) {
+                is_numeric($data->pupuk_nonsubsidi)) { // Diubah
                 $cleanedData[] = [
                     'NO' => $data->id,
                     'TANGGAL' => $data->tanggal,
@@ -553,7 +558,7 @@ class DataBerasController extends Controller
                     'BBM_PERTALITE' => $data->bbm_pertalite,
                     'UMP_SULUT' => $data->ump_sulut,
                     'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
-                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                    'PUPUK_NONSUBISIDI' => $data->pupuk_nonsubsidi, // Diubah
                 ];
                 $dates[] = \Carbon\Carbon::parse($data->tanggal)->format('Y-m');
             }
@@ -591,7 +596,7 @@ class DataBerasController extends Controller
 
             // Build regression equation
             $regressionEquation = "Y = " . number_format($b[0][0], 4);
-            $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_SUBSIDI'];
+            $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_NONSUBISIDI']; // Diubah
             foreach ($variables as $i => $var) {
                 $regressionEquation .= " + (" . number_format($b[$i + 1][0], 4) . " * {$var})";
             }
@@ -604,7 +609,7 @@ class DataBerasController extends Controller
                     $row['BBM_PERTALITE'],
                     $row['UMP_SULUT'],
                     $row['JUMLAH_PENDUDUK'],
-                    $row['PUPUK_SUBSIDI']
+                    $row['PUPUK_NONSUBISIDI'] // Diubah
                 ]);
             }, $cleanedData);
 
@@ -693,7 +698,7 @@ class DataBerasController extends Controller
                 is_numeric($data->bbm_pertalite) &&
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
-                is_numeric($data->pupuk_subsidi)) {
+                is_numeric($data->pupuk_nonsubsidi)) { // Diubah
                 $cleanedData[] = [
                     'NO' => $data->id,
                     'TANGGAL' => \Carbon\Carbon::parse($data->tanggal)->format('F-Y'),
@@ -708,7 +713,7 @@ class DataBerasController extends Controller
                     'BBM_PERTALITE' => $data->bbm_pertalite,
                     'UMP_SULUT' => $data->ump_sulut,
                     'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
-                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                    'PUPUK_NONSUBISIDI' => $data->pupuk_nonsubsidi, // Diubah
                 ];
                 $dates[] = \Carbon\Carbon::parse($data->tanggal)->format('Y-m');
             }
@@ -727,7 +732,7 @@ class DataBerasController extends Controller
                 $row['BBM_PERTALITE'],
                 $row['UMP_SULUT'],
                 $row['JUMLAH_PENDUDUK'],
-                $row['PUPUK_SUBSIDI']
+                $row['PUPUK_NONSUBISIDI'] // Diubah
             ];
         }, $cleanedData);
         $Y = array_column($cleanedData, $category);
@@ -743,7 +748,7 @@ class DataBerasController extends Controller
             'X3' => array_sum(array_column($cleanedData, 'BBM_PERTALITE')),
             'X4' => array_sum(array_column($cleanedData, 'UMP_SULUT')),
             'X5' => array_sum(array_column($cleanedData, 'JUMLAH_PENDUDUK')),
-            'X6' => array_sum(array_column($cleanedData, 'PUPUK_SUBSIDI')),
+            'X6' => array_sum(array_column($cleanedData, 'PUPUK_NONSUBISIDI')), // Diubah
         ];
 
         // Add intercept column
@@ -760,28 +765,28 @@ class DataBerasController extends Controller
                 'X3Y' => $row['BBM_PERTALITE'] * $row[$category],
                 'X4Y' => $row['UMP_SULUT'] * $row[$category],
                 'X5Y' => $row['JUMLAH_PENDUDUK'] * $row[$category],
-                'X6Y' => $row['PUPUK_SUBSIDI'] * $row[$category],
+                'X6Y' => $row['PUPUK_NONSUBISIDI'] * $row[$category], // Diubah
                 'X1X2' => $row['INFLASI_BI'] * $row['KURS_USD'],
                 'X1X3' => $row['INFLASI_BI'] * $row['BBM_PERTALITE'],
                 'X1X4' => $row['INFLASI_BI'] * $row['UMP_SULUT'],
                 'X1X5' => $row['INFLASI_BI'] * $row['JUMLAH_PENDUDUK'],
-                'X1X6' => $row['INFLASI_BI'] * $row['PUPUK_SUBSIDI'],
+                'X1X6' => $row['INFLASI_BI'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X2X3' => $row['KURS_USD'] * $row['BBM_PERTALITE'],
                 'X2X4' => $row['KURS_USD'] * $row['UMP_SULUT'],
                 'X2X5' => $row['KURS_USD'] * $row['JUMLAH_PENDUDUK'],
-                'X2X6' => $row['KURS_USD'] * $row['PUPUK_SUBSIDI'],
+                'X2X6' => $row['KURS_USD'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X3X4' => $row['BBM_PERTALITE'] * $row['UMP_SULUT'],
                 'X3X5' => $row['BBM_PERTALITE'] * $row['JUMLAH_PENDUDUK'],
-                'X3X6' => $row['BBM_PERTALITE'] * $row['PUPUK_SUBSIDI'],
+                'X3X6' => $row['BBM_PERTALITE'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X4X5' => $row['UMP_SULUT'] * $row['JUMLAH_PENDUDUK'],
-                'X4X6' => $row['UMP_SULUT'] * $row['PUPUK_SUBSIDI'],
-                'X5X6' => $row['JUMLAH_PENDUDUK'] * $row['PUPUK_SUBSIDI'],
+                'X4X6' => $row['UMP_SULUT'] * $row['PUPUK_NONSUBISIDI'], // Diubah
+                'X5X6' => $row['JUMLAH_PENDUDUK'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X1_2' => $row['INFLASI_BI'] * $row['INFLASI_BI'],
                 'X2_2' => $row['KURS_USD'] * $row['KURS_USD'],
                 'X3_2' => $row['BBM_PERTALITE'] * $row['BBM_PERTALITE'],
                 'X4_2' => $row['UMP_SULUT'] * $row['UMP_SULUT'],
                 'X5_2' => $row['JUMLAH_PENDUDUK'] * $row['JUMLAH_PENDUDUK'],
-                'X6_2' => $row['PUPUK_SUBSIDI'] * $row['PUPUK_SUBSIDI'],
+                'X6_2' => $row['PUPUK_NONSUBISIDI'] * $row['PUPUK_NONSUBISIDI'], // Diubah
 
             ];
         }
@@ -837,7 +842,7 @@ class DataBerasController extends Controller
 
         // Build regression equation
         $regressionEquation = "Y = " . number_format($b[0], 6);
-        $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_SUBSIDI'];
+        $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_NONSUBISIDI']; // Diubah
         foreach ($variables as $i => $var) {
             $regressionEquation .= " + (" . number_format($b[$i + 1], 6) . " * {$var})";
         }
@@ -858,7 +863,7 @@ class DataBerasController extends Controller
                 'b3X3' => $b[3] * $row[2], // BBM_PERTALITE
                 'b4X4' => $b[4] * $row[3], // UMP_SULUT
                 'b5X5' => $b[5] * $row[4], // JUMLAH_PENDUDUK
-                'b6X6' => $b[6] * $row[5], // PUPUK_SUBSIDI
+                'b6X6' => $b[6] * $row[5], // PUPUK_NONSUBISIDI // Diubah
             ];
             $regressionTerms[] = $terms;
         }
@@ -907,7 +912,7 @@ class DataBerasController extends Controller
                 'X3' => number_format($row['BBM_PERTALITE'], 2),
                 'X4' => number_format($row['UMP_SULUT'], 2),
                 'X5' => number_format($row['JUMLAH_PENDUDUK'], 2),
-                'X6' => number_format($row['PUPUK_SUBSIDI'], 2),
+                'X6' => number_format($row['PUPUK_NONSUBISIDI'], 2), // Diubah
             ];
         }, $cleanedData, array_keys($cleanedData));
 
@@ -1020,7 +1025,7 @@ class DataBerasController extends Controller
                 is_numeric($data->bbm_pertalite) &&
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
-                is_numeric($data->pupuk_subsidi)) {
+                is_numeric($data->pupuk_nonsubsidi)) { // Diubah
 
                 $dataArray = [
                     'NO' => $data->id,
@@ -1036,7 +1041,7 @@ class DataBerasController extends Controller
                     'BBM_PERTALITE' => $data->bbm_pertalite,
                     'UMP_SULUT' => $data->ump_sulut,
                     'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
-                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                    'PUPUK_NONSUBISIDI' => $data->pupuk_nonsubsidi, // Diubah
                 ];
 
                 // Check if the date exists in DataUji
@@ -1062,7 +1067,7 @@ class DataBerasController extends Controller
                 $row['BBM_PERTALITE'],
                 $row['UMP_SULUT'],
                 $row['JUMLAH_PENDUDUK'],
-                $row['PUPUK_SUBSIDI']
+                $row['PUPUK_NONSUBISIDI'] // Diubah
             ];
         }, $trainingData);
         $Y_train = array_column($trainingData, $category);
@@ -1078,7 +1083,7 @@ class DataBerasController extends Controller
                 $row['BBM_PERTALITE'],
                 $row['UMP_SULUT'],
                 $row['JUMLAH_PENDUDUK'],
-                $row['PUPUK_SUBSIDI']
+                $row['PUPUK_NONSUBISIDI'] // Diubah
             ];
         }, $testingData);
         $Y_test = array_column($testingData, $category);
@@ -1091,7 +1096,7 @@ class DataBerasController extends Controller
             'X3' => array_sum(array_column($trainingData, 'BBM_PERTALITE')),
             'X4' => array_sum(array_column($trainingData, 'UMP_SULUT')),
             'X5' => array_sum(array_column($trainingData, 'JUMLAH_PENDUDUK')),
-            'X6' => array_sum(array_column($trainingData, 'PUPUK_SUBSIDI')),
+            'X6' => array_sum(array_column($trainingData, 'PUPUK_NONSUBISIDI')), // Diubah
         ];
 
         // Add intercept column for training data
@@ -1108,28 +1113,28 @@ class DataBerasController extends Controller
                 'X3Y' => $row['BBM_PERTALITE'] * $row[$category],
                 'X4Y' => $row['UMP_SULUT'] * $row[$category],
                 'X5Y' => $row['JUMLAH_PENDUDUK'] * $row[$category],
-                'X6Y' => $row['PUPUK_SUBSIDI'] * $row[$category],
+                'X6Y' => $row['PUPUK_NONSUBISIDI'] * $row[$category], // Diubah
                 'X1X2' => $row['INFLASI_BI'] * $row['KURS_USD'],
                 'X1X3' => $row['INFLASI_BI'] * $row['BBM_PERTALITE'],
                 'X1X4' => $row['INFLASI_BI'] * $row['UMP_SULUT'],
                 'X1X5' => $row['INFLASI_BI'] * $row['JUMLAH_PENDUDUK'],
-                'X1X6' => $row['INFLASI_BI'] * $row['PUPUK_SUBSIDI'],
+                'X1X6' => $row['INFLASI_BI'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X2X3' => $row['KURS_USD'] * $row['BBM_PERTALITE'],
                 'X2X4' => $row['KURS_USD'] * $row['UMP_SULUT'],
                 'X2X5' => $row['KURS_USD'] * $row['JUMLAH_PENDUDUK'],
-                'X2X6' => $row['KURS_USD'] * $row['PUPUK_SUBSIDI'],
+                'X2X6' => $row['KURS_USD'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X3X4' => $row['BBM_PERTALITE'] * $row['UMP_SULUT'],
                 'X3X5' => $row['BBM_PERTALITE'] * $row['JUMLAH_PENDUDUK'],
-                'X3X6' => $row['BBM_PERTALITE'] * $row['PUPUK_SUBSIDI'],
+                'X3X6' => $row['BBM_PERTALITE'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X4X5' => $row['UMP_SULUT'] * $row['JUMLAH_PENDUDUK'],
-                'X4X6' => $row['UMP_SULUT'] * $row['PUPUK_SUBSIDI'],
-                'X5X6' => $row['JUMLAH_PENDUDUK'] * $row['PUPUK_SUBSIDI'],
+                'X4X6' => $row['UMP_SULUT'] * $row['PUPUK_NONSUBISIDI'], // Diubah
+                'X5X6' => $row['JUMLAH_PENDUDUK'] * $row['PUPUK_NONSUBISIDI'], // Diubah
                 'X1_2' => $row['INFLASI_BI'] * $row['INFLASI_BI'],
                 'X2_2' => $row['KURS_USD'] * $row['KURS_USD'],
                 'X3_2' => $row['BBM_PERTALITE'] * $row['BBM_PERTALITE'],
                 'X4_2' => $row['UMP_SULUT'] * $row['UMP_SULUT'],
                 'X5_2' => $row['JUMLAH_PENDUDUK'] * $row['JUMLAH_PENDUDUK'],
-                'X6_2' => $row['PUPUK_SUBSIDI'] * $row['PUPUK_SUBSIDI'],
+                'X6_2' => $row['PUPUK_NONSUBISIDI'] * $row['PUPUK_NONSUBISIDI'], // Diubah
             ];
         }
 
@@ -1181,7 +1186,7 @@ class DataBerasController extends Controller
 
         // Build regression equation
         $regressionEquation = "Y = " . number_format($b[0], 6);
-        $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_SUBSIDI'];
+        $variables = ['INFLASI_BI', 'KURS_USD', 'BBM_PERTALITE', 'UMP_SULUT', 'JUMLAH_PENDUDUK', 'PUPUK_NONSUBISIDI']; // Diubah
         foreach ($variables as $i => $var) {
             $regressionEquation .= " + (" . number_format($b[$i + 1], 6) . " * {$var})";
         }
@@ -1205,7 +1210,7 @@ class DataBerasController extends Controller
                 'b3X3' => $b[3] * $row[2], // BBM_PERTALITE
                 'b4X4' => $b[4] * $row[3], // UMP_SULUT
                 'b5X5' => $b[5] * $row[4], // JUMLAH_PENDUDUK
-                'b6X6' => $b[6] * $row[5], // PUPUK_SUBSIDI
+                'b6X6' => $b[6] * $row[5], // PUPUK_NONSUBISIDI // Diubah
             ];
             $regressionTerms[] = $terms;
         }
@@ -1253,7 +1258,7 @@ class DataBerasController extends Controller
                 'X3' => number_format($row['BBM_PERTALITE'], 2),
                 'X4' => number_format($row['UMP_SULUT'], 2),
                 'X5' => number_format($row['JUMLAH_PENDUDUK'], 2),
-                'X6' => number_format($row['PUPUK_SUBSIDI'], 2),
+                'X6' => number_format($row['PUPUK_NONSUBISIDI'], 2), // Diubah
             ];
         }, $trainingData, array_keys($trainingData));
 
@@ -1545,7 +1550,7 @@ class DataBerasController extends Controller
             'bbm_pertalite',
             'ump_sulut',
             'jumlah_penduduk',
-            'pupuk_subsidi'
+            'pupuk_nonsubsidi' // Diubah
         ];
 
         $forecastedData = [];
@@ -1592,7 +1597,7 @@ class DataBerasController extends Controller
                 $row['BBM_PERTALITE'],
                 $row['UMP_SULUT'],
                 $row['JUMLAH_PENDUDUK'],
-                $row['PUPUK_SUBSIDI']
+                $row['PUPUK_NONSUBISIDI'] // Diubah
             ];
         }, $cleanedData);
         $Y = array_column($cleanedData, $priceCategory);
@@ -1615,7 +1620,7 @@ class DataBerasController extends Controller
      */
     public function predictFuturePrices(Request $request)
     {
-       // set_time_limit(0); // No time limit
+        // set_time_limit(0); // No time limit
         ini_set('max_execution_time', 0);
         $monthsAhead = 1; // Hardcode to 1 for the next month only
 
@@ -1655,7 +1660,7 @@ class DataBerasController extends Controller
                 is_numeric($data->bbm_pertalite) &&
                 is_numeric($data->ump_sulut) &&
                 is_numeric($data->jumlah_penduduk) &&
-                is_numeric($data->pupuk_subsidi)) {
+                is_numeric($data->pupuk_nonsubsidi)) { // Diubah
                 $cleanedData[] = [
                     'HARGA_BERAS_KUALITAS_BAWAH_I' => $data->harga_beras_kualitas_bawah_i,
                     'HARGA_BERAS_KUALITAS_BAWAH_II' => $data->harga_beras_kualitas_bawah_ii,
@@ -1668,7 +1673,7 @@ class DataBerasController extends Controller
                     'BBM_PERTALITE' => $data->bbm_pertalite,
                     'UMP_SULUT' => $data->ump_sulut,
                     'JUMLAH_PENDUDUK' => $data->jumlah_penduduk,
-                    'PUPUK_SUBSIDI' => $data->pupuk_subsidi,
+                    'PUPUK_NONSUBISIDI' => $data->pupuk_nonsubsidi, // Diubah
                 ];
             }
         }
@@ -1696,7 +1701,7 @@ class DataBerasController extends Controller
                     $futureRow['bbm_pertalite'], // b3
                     $futureRow['ump_sulut'], // b4
                     $futureRow['jumlah_penduduk'], // b5
-                    $futureRow['pupuk_subsidi'] // b6
+                    $futureRow['pupuk_nonsubsidi'] // b6 // Diubah
                 ];
 
                 // Calculate predicted price using the formula:

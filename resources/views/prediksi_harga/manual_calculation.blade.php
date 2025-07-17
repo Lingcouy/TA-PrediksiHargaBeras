@@ -60,7 +60,7 @@
                                 <th>BBM (PERTALITE)</th>
                                 <th>UMP SULUT</th>
                                 <th>JUMLAH PENDUDUK</th>
-                                <th>PUPUK SUBSIDI</th>
+                                <th>PUPUK NON-SUBSIDI</th>
                             </tr>
                             <tr>
                                 <th>i</th>
@@ -328,7 +328,7 @@
                                 <th>+</th>
                                 <th title="Jumlah Penduduk">b5*X5</th>
                                 <th>+</th>
-                                <th title="Pupuk Subsidi">b6*X6</th>
+                                <th title="Pupuk Non-Subsidi">b6*X6</th>
                                 <th>=</th>
                                 <th>Hasil (Y Predicted)</th>
                             </tr>

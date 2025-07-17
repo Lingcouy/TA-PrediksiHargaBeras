@@ -114,7 +114,7 @@
                             @foreach ($results[array_key_first($results)]['future_predictions'] as $index => $prediction)
                                 <tr>
                                     <th scope="row">{{ $index + 1 }}</th>
-                                    <td>{{ \Carbon\Carbon::parse($prediction['tanggal'])->format('F-Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($prediction['tanggal'])->locale('id')->isoFormat('MMMM-YYYY') }}</td>
                                     @foreach ($results as $category => $result)
                                         @if (!isset($result['error']))
                                             <td>{{ number_format((float)str_replace(',', '', $result['future_predictions'][$index]['predicted_price']), 2, '.', ',') }}</td>
@@ -154,7 +154,7 @@
                             @foreach ($last_three_data as $index => $data)
                                 <tr>
                                     <th scope="row">{{ $index + 1 }}</th>
-                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('F-Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->locale('id')->isoFormat('MMMM-YYYY') }}</td>
                                     <td>{{ number_format($data->harga_beras_kualitas_bawah_i, 2, '.', ',') }}</td>
                                     <td>{{ number_format($data->harga_beras_kualitas_bawah_ii, 2, '.', ',') }}</td>
                                     <td>{{ number_format($data->harga_beras_kualitas_medium_i, 2, '.', ',') }}</td>
@@ -185,19 +185,19 @@
                                 <th scope="col">BBM Pertalite</th>
                                 <th scope="col">UMP Sulut</th>
                                 <th scope="col">Jumlah Penduduk</th>
-                                <th scope="col">Pupuk Subsidi</th>
+                                <th scope="col">Pupuk Non-Subsidi</th> {{-- Diubah --}}
                             </tr>
                             </thead>
                             <tbody>
                             @foreach ($future_independent_variables as $future_data)
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($future_data['tanggal'])->format('F-Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($future_data['tanggal'])->locale('id')->isoFormat('MMMM-YYYY') }}</td>
                                     <td>{{ number_format($future_data['inflasi_bi'], 2, '.', ',') }}</td>
                                     <td>{{ number_format($future_data['kurs_usd'], 2, '.', ',') }}</td>
                                     <td>{{ number_format($future_data['bbm_pertalite'], 2, '.', ',') }}</td>
                                     <td>{{ number_format($future_data['ump_sulut'], 2, '.', ',') }}</td>
                                     <td>{{ number_format($future_data['jumlah_penduduk'], 0, '.', ',') }}</td>
-                                    <td>{{ number_format($future_data['pupuk_subsidi'], 2, '.', ',') }}</td>
+                                    <td>{{ number_format($future_data['pupuk_nonsubsidi'], 2, '.', ',') }}</td> {{-- Diubah --}}
                                 </tr>
                             @endforeach
                             </tbody>
@@ -222,7 +222,7 @@
                             <th scope="col">BBM Pertalite (b3)</th>
                             <th scope="col">UMP Sulut (b4)</th>
                             <th scope="col">Jumlah Penduduk (b5)</th>
-                            <th scope="col">Pupuk Subsidi (b6)</th>
+                            <th scope="col">Pupuk Non-Subsidi (b6)</th> {{-- Diubah --}}
                         </tr>
                         </thead>
                         <tbody>

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->decimal('bbm_pertalite', 10, 2);
             $table->decimal('ump_sulut', 10, 2);
             $table->decimal('jumlah_penduduk', 12, 2);
-            $table->decimal('pupuk_subsidi', 10, 2);
+            $table->decimal('pupuk_nonsubsidi', 10, 2);
             $table->timestamps();
         });
     }
