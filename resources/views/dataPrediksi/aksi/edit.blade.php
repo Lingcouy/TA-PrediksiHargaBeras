@@ -198,11 +198,11 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="pupuk_subsidi" class="col-sm-2 col-form-label">Pupuk Subsidi</label>
+                            <label for="pupuk_nonsubsidi" class="col-sm-2 col-form-label">Pupuk Non-Subsidi</label>
                             <div class="col-sm-10">
-                                <input type="number" step="0.01" class="form-control @error('pupuk_subsidi') is-invalid @enderror"
-                                       id="pupuk_subsidi" name="pupuk_subsidi" value="{{ old('pupuk_subsidi', $dataBeras->pupuk_subsidi) }}">
-                                @error('pupuk_subsidi')
+                                <input type="number" step="0.01" class="form-control @error('pupuk_nonsubsidi') is-invalid @enderror"
+                                       id="pupuk_nonsubsidi" name="pupuk_nonsubsidi" value="{{ old('pupuk_nonsubsidi', $dataBeras->pupuk_nonsubsidi) }}">
+                                @error('pupuk_nonsubsidi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
